@@ -72,7 +72,7 @@ export default function PhyloTree({ newick }: { newick: string }) {
           <text x={myX + 9} y={y + 4} fontSize={13} fontFamily="monospace" fontWeight={hover === n.name ? 700 : 400}>{n.name}</text>
           <text x={myX + 9} y={y + 18} fontSize={10} fill="#94a3b8">branch: {n.length.toFixed(3)}</text>
         </g>);
-    } else if (n.name && n.name !== "Root") {
+    } else if (n.name && n.name !== "Root" && !n.name.startsWith("Inner")) {
       labels.push(<text key={`l${labels.length}`} x={myX - 4} y={y - 5} fontSize={10} fill="#94a3b8" textAnchor="end">{n.name}</text>);
     }
     return y;
