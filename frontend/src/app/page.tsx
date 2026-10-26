@@ -2,6 +2,7 @@
 "use client";
 import { useState } from "react";
 import PhyloTree from "@/components/PhyloTree";
+import ProteinViewer from "@/components/ProteinViewer";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 const SAMPLE2 = ">ref\nACGTACGTACGT\n>alt\nACGTTCGTACGT\n";
@@ -53,13 +54,14 @@ export default function Home() {
       <header className="border-b px-6 py-4 flex justify-between items-center">
         <div><h1 className="text-2xl font-bold text-teal-700">PhyloLoom AI</h1>
         <p className="text-sm text-slate-500">Computational Genomics &amp; Evolutionary Analysis Workspace</p></div>
-        <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">AI: MOCK provider</span>
+        <div className="flex items-center gap-3"><a href="/methods" className="text-sm text-teal-700 underline">Methods &amp; Limitations</a><span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">AI: MOCK provider</span></div>
       </header>
 
       <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-6">
         <section className="border rounded-xl p-4">
           <h2 className="font-semibold mb-1">Sequence Explorer</h2>
           <p className="text-sm text-slate-500 mb-3">Paste FASTA (DNA/RNA/protein). Max 50 sequences. Data is processed in memory, not stored. 2 sequences = variant comparison, 3+ = distance matrix + NJ tree.</p>
+          <label className="block border rounded px-3 py-2 text-sm cursor-pointer mb-2 w-fit">Upload FASTA file<input type="file" accept=".fasta,.fa,.faa,.fna,.txt" className="hidden" onChange={async e => { const f = e.target.files?.[0]; if (!f) return; if (f.size > 1000000) { setError("FASTA file too large (max 1 MB)."); return; } setInput(await f.text()); }} /></label>
           <textarea value={input} onChange={e => setInput(e.target.value)} rows={10}
             className="w-full border rounded p-2 font-mono text-sm" spellCheck={false} />
           <div className="flex gap-2 mt-3 flex-wrap">
@@ -125,6 +127,7 @@ export default function Home() {
           {result && <p className="text-xs text-slate-400 mt-3">{result.disclaimer}</p>}
         </section>
       </div>
+    <section className="max-w-6xl mx-auto px-6 pb-10"><div className="border rounded-xl p-4"><h2 className="font-semibold mb-1">Protein Explorer</h2><p className="text-sm text-slate-500 mb-3">Interactive 3D structure viewer (3Dmol.js). Load the experimental demo structure, upload a PDB file, or paste PDB text. Highlight a residue by number.</p><ProteinViewer /></div></section>
     </main>
   );
 }
