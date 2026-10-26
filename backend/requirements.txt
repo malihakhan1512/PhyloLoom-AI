@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+biopython
+pydantic
+python-multipart
+pytest
+httpx
