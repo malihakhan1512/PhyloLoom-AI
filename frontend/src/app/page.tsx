@@ -1,6 +1,7 @@
 
 "use client";
 import { useState } from "react";
+import PhyloTree from "@/components/PhyloTree";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 const SAMPLE2 = ">ref\nACGTACGTACGT\n>alt\nACGTTCGTACGT\n";
@@ -109,7 +110,8 @@ export default function Home() {
                   <tr key={i}><td className="pr-2 font-sans">{result.phylogeny!.names[i]}</td>
                   {row.map((d, j) => <td key={j} className="px-2">{d.toFixed(3)}</td>)}</tr>))}
               </tbody></table>
-              <p className="text-xs font-mono bg-slate-50 p-2 rounded mt-2 break-all">Newick: {result.phylogeny.newick}</p>
+              <div className="mt-3"><PhyloTree newick={result.phylogeny.newick} /></div>
+              <details className="mt-2"><summary className="text-xs text-slate-500 cursor-pointer">Raw Newick (for reproducibility / download)</summary><p className="text-xs font-mono bg-slate-50 p-2 rounded mt-1 break-all">{result.phylogeny.newick}</p></details>
               <p className="text-xs text-slate-400 mt-1">{result.phylogeny.method}</p>
             </div>
           )}
