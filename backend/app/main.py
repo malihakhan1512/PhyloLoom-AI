@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from .core.fasta import parse_fasta, detect_and_validate, SequenceError
 from .core.stats import nucleotide_stats, protein_stats
@@ -7,6 +8,7 @@ from .core.phylo import distance_matrix_and_tree
 from .ai.mock import MockAIProvider
 
 app = FastAPI(title="PhyloLoom AI", version="0.1.0")
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_methods=["*"], allow_headers=["*"])
 ai = MockAIProvider()
 
 class AnalyzeIn(BaseModel):
