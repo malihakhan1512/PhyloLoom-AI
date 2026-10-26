@@ -38,7 +38,7 @@ export default function ProteinViewer() {
       const r = await fetch("https://files.rcsb.org/download/1CRN.pdb");
       if (!r.ok) throw new Error("RCSB fetch failed (" + r.status + ")");
       const pdb = await r.text();
-      setPdbText(pdb); render(pdb);
+      setPdbText(pdb); await render(pdb);
       setStatus("Demo loaded: 1CRN (crambin) — EXPERIMENTAL X-ray crystal structure from RCSB PDB. Not a prediction.");
     } catch (e: any) { setStatus("Demo fetch failed (network/CORS): " + e.message + " — upload a .pdb file instead."); }
   }
@@ -56,7 +56,7 @@ export default function ProteinViewer() {
       const pdbRes = await fetch(arr[0].pdbUrl);
       if (!pdbRes.ok) throw new Error("AlphaFold PDB download failed");
       const pdb = await pdbRes.text();
-      setFormat("pdb"); setPdbText(pdb); render(pdb, style, resi, "pdb");
+      setFormat("pdb"); setPdbText(pdb); await render(pdb, style, resi, "pdb");
       setStatus("PREDICTED structure loaded: AlphaFold DB " + id + " (" + (arr[0].organismScientificName || "unknown organism") + "), avg pLDDT: " + (arr[0].globalMetricValue ?? "n/a") + ". This is a prediction, NOT an experimental structure.");
     } catch (e: any) { setStatus("AlphaFold fetch failed: " + e.message + " - check UniProt ID or upload a .pdb file."); }
   }

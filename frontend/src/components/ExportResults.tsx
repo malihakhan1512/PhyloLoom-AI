@@ -33,7 +33,7 @@ export default function ExportResults({ data, input }: { data?: any, input?: str
           className="border px-3 py-2 rounded text-sm disabled:opacity-40">Download Results (JSON)</button>
         <button disabled={!hasData} onClick={() => download("phyloloom-results.txt", JSON.stringify(data, null, 2))}
           className="border px-3 py-2 rounded text-sm disabled:opacity-40">Download Results (TXT)</button>
-        <button disabled={!newick} onClick={() => newick && download("phyloloom-tree.newick", newick)}
+        <button disabled={!newick} onClick={() => newick && download("phyloloom-tree.newick", newick.replace(/:-[0-9.eE+\-]+/g, ":0"))}
           className="border px-3 py-2 rounded text-sm disabled:opacity-40">Download Tree (Newick)</button>
         <button disabled={!input} onClick={() => input && download("phyloloom-input.fasta", input)}
           className="border px-3 py-2 rounded text-sm disabled:opacity-40">Download Input (FASTA)</button>
