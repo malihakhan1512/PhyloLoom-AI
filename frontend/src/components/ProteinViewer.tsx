@@ -1,6 +1,7 @@
 
 "use client";
 import { useRef, useState } from "react";
+import { experimentalDemoStatus, predictedStatus, DEFAULT_UNIPROT_ID } from "@/lib/structure";
 
 export default function ProteinViewer() {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -8,7 +9,7 @@ export default function ProteinViewer() {
   const [status, setStatus] = useState("No structure loaded. Load the demo, upload a .pdb file, or paste PDB text below.");
   const [style, setStyle] = useState("cartoon");
   const [resi, setResi] = useState("");
-  const [uniprot, setUniprot] = useState("P69905");
+  const [uniprot, setUniprot] = useState(DEFAULT_UNIPROT_ID);
   const [pdbText, setPdbText] = useState("");
   const [format, setFormat] = useState("pdb");
 
@@ -39,7 +40,7 @@ export default function ProteinViewer() {
       if (!r.ok) throw new Error("RCSB fetch failed (" + r.status + ")");
       const pdb = await r.text();
       setPdbText(pdb); await render(pdb);
-      setStatus("Demo loaded: 1CRN (crambin) — EXPERIMENTAL X-ray crystal structure from RCSB PDB. Not a prediction.");
+      setStatus(experimentalDemoStatus());
     } catch (e: any) { setStatus("Demo fetch failed (network/CORS): " + e.message + " — upload a .pdb file instead."); }
   }
 
@@ -57,7 +58,7 @@ export default function ProteinViewer() {
       if (!pdbRes.ok) throw new Error("AlphaFold PDB download failed");
       const pdb = await pdbRes.text();
       setFormat("pdb"); setPdbText(pdb); await render(pdb, style, resi, "pdb");
-      setStatus("PREDICTED structure loaded: AlphaFold DB " + id + " (" + (arr[0].organismScientificName || "unknown organism") + "), avg pLDDT: " + (arr[0].globalMetricValue ?? "n/a") + ". This is a prediction, NOT an experimental structure.");
+      setStatus(predictedStatus(id, arr[0].organismScientificName, arr[0].globalMetricValue));
     } catch (e: any) { setStatus("AlphaFold fetch failed: " + e.message + " - check UniProt ID or upload a .pdb file."); }
   }
 
