@@ -2,6 +2,7 @@ from io import StringIO
 from Bio import Phylo
 from Bio.Phylo.TreeConstruction import DistanceMatrix, DistanceTreeConstructor
 from .align import _aligner
+from ..newick import sanitize_newick
 
 def p_distance(s1: str, s2: str) -> float:
     aln = _aligner().align(s1, s2)[0]
@@ -18,4 +19,4 @@ def distance_matrix_and_tree(records):
     buf = StringIO()
     Phylo.write(tree, buf, "newick")
     return {"method": "p-distance on pairwise global alignments (gap columns excluded) + Neighbor-Joining. Exploratory only, not a definitive evolutionary history. No multiple-substitution correction.",
-            "names": names, "matrix": lower, "newick": buf.getvalue().strip()}
+            "names": names, "matrix": lower, "newick": sanitize_newick(buf.getvalue().strip())}
