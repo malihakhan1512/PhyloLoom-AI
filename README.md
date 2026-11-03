@@ -33,8 +33,9 @@ computed results from the backend and must not invent numerical values.
 | 3D protein viewer (3Dmol.js): 1CRN experimental, AlphaFold DB predicted (pLDDT shown) | ✅ Works |
 | JSON download of computed results | ✅ Works |
 | Methods, assumptions, limitations & privacy documentation | ✅ Works |
-| AI Research Copilot | ⚠️ Experimental — clearly labeled MOCK provider |
-| Meta AI provider | 🔌 Placeholder — activates when hackathon credentials arrive |
+| AI Research Copilot | Experimental — Meta Muse Spark when configured; clearly labeled MOCK fallback |
+| Meta AI provider | Works when configured — `muse-spark-1.3` via Meta Model API (`https://api.meta.ai/v1`), server-side `MODEL_API_KEY` only |
+| ESM-2 embeddings / mutation-effect scoring | Not implemented — deferred per original spec Phase 6; not verified for model, license, or hardware |
 | FASTQ, genome assembly, variant calling (VCF) | ❌ Not implemented |
 | Structure prediction, pathogenicity prediction, bootstrap support | ❌ Not implemented — see Methods page |
 
@@ -43,7 +44,7 @@ features and are labeled as not for scientific inference.
 
 ## Three-minute demo
 
-1. Open https://phyloloom.study — note the `AI: MOCK provider` badge.
+1. Open https://phyloloom.study — note the AI provider badge (shows Meta — muse-spark-1.3 when live, otherwise MOCK).
 2. **Demo B: Tree building (4 seq)** → Analyze → composition statistics (computed live),
    p-distance matrix, exploratory NJ tree with scale bar → open *Raw Newick* → Download JSON.
 3. **Demo A: Variant comparison (2 seq)** → Analyze → position-aware differences from
@@ -51,7 +52,7 @@ features and are labeled as not for scientific inference.
 4. **Protein Explorer:** Load *1CRN (experimental)*, then load AlphaFold prediction
    *P69905* — experimental and predicted structures are labeled as different evidence
    categories, with average pLDDT displayed for predictions.
-5. **Ask AI Copilot (mock)** — response is labeled `[MOCK - not a real AI or biological finding]`
+5. **Ask AI Copilot** — response is labeled `Real Meta explanation when configured; any Mock fallback is visibly labeled`
    and only references keys of the computed result.
 6. **Methods & Limitations** — alignment parameters, distance/tree limitations,
    intended research use, privacy (data processed in memory, not stored).
@@ -66,4 +67,5 @@ flowchart LR
     ENG --> API
     API --> FE
     FE --> V[3Dmol.js Viewer<br/>RCSB PDB / AlphaFold DB]
-    API -.->|structured computed results only| AI[AI Provider<br/>Mock now / Meta when configured]
+    API -.->|structured computed results only| AI[AI Provider<br/>Meta Muse Spark when configured / labeled Mock fallback
+]

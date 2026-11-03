@@ -23,7 +23,7 @@ Click **Download Tree (Newick)** and **Download Results (JSON)** - reproducible 
 3. Enter UniProt `P69905` -> **Load AlphaFold Prediction** - "Now a PREDICTED structure, labeled as a different evidence category. We never mix them up."
 
 ## 2:50 - Transparency close (10s)
-Open **Methods & Limitations**: "Every method, assumption, and limitation is documented. The AI copilot is clearly labeled MOCK - it makes no biological claims."
+Open **Methods & Limitations**: "Every method, assumption, and limitation is documented. The AI copilot is powered by Meta Muse Spark when configured; any Mock fallback is clearly labeled. It explains computed results only and makes no clinical claims."
 
 ## Honest limitations to state if asked
 Not clinical/diagnostic. No structure prediction. No bootstrap. Pairwise alignment, not true MSA.

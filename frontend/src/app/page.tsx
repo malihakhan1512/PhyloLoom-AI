@@ -1,7 +1,7 @@
 "use client";
 import DemoDatasets from "@/components/DemoDatasets";
 import ExportResults from "@/components/ExportResults";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PhyloTree from "@/components/PhyloTree";
 import ProteinViewer from "@/components/ProteinViewer";
 
@@ -9,25 +9,64 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 const SAMPLE2 = ">ref\nACGTACGTACGT\n>alt\nACGTTCGTACGT\n";
 const SAMPLE3 = ">human\nACGTACGTACGT\n>chimp\nACGTTCGTACGT\n>mouse\nACGTTCGAATGT\n";
 
-type Seq = { id: string; sequence: string; validation: { type: string; ambiguous: string[] };
-  stats: { length: number; gc_percent?: number; molecular_weight_da?: number; gravy?: number;
-  composition: Record<string, number>; method: string } };
-type Result = { sequences: Seq[]; disclaimer: string;
+type Seq = {
+  id: string; sequence: string; validation: { type: string; ambiguous: string[] };
+  stats: {
+    length: number; gc_percent?: number; molecular_weight_da?: number; gravy?: number;
+    composition: Record<string, number>; method: string
+  }
+};
+type Result = {
+  sequences: Seq[]; disclaimer: string;
   comparison?: { identity_percent: number; variants: { type: string; ref_pos: number; ref: string | null; alt: string | null }[]; method: string; note: string };
-  phylogeny?: { method: string; names: string[]; matrix: number[][]; newick: string } };
+  phylogeny?: { method: string; names: string[]; matrix: number[][]; newick: string }
+};
 
 export default function Home() {
   const [input, setInput] = useState(SAMPLE2);
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [aiText, setAiText] = useState("");
+  type AiResponse = {
+    provider: string;
+    is_mock: boolean;
+    model?: string;
+    text: string;
+    fallback_reason?: string;
+  };
+
+  type ProviderHealth = {
+    ai_provider: string;
+    is_mock: boolean;
+    model?: string | null;
+  };
+
+  const [aiResponse, setAiResponse] = useState<AiResponse | null>(null);
+  const [providerHealth, setProviderHealth] = useState<ProviderHealth | null>(null);
+  const [providerChecked, setProviderChecked] = useState(false);
+
+  useEffect(() => {
+    async function loadHealth() {
+      try {
+        const r = await fetch(`${API}/health`);
+        if (!r.ok) throw new Error("Health check failed");
+        setProviderHealth(await r.json());
+      } catch {
+        setProviderHealth(null);
+      } finally {
+        setProviderChecked(true);
+      }
+    }
+    loadHealth();
+  }, []);
 
   async function analyze() {
-    setLoading(true); setError(""); setAiText("");
+    setLoading(true); setError(""); setAiResponse(null);
     try {
-      const r = await fetch(`${API}/api/analyze`, { method: "POST",
-        headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fasta_text: input }) });
+      const r = await fetch(`${API}/api/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fasta_text: input })
+      });
       const data = await r.json();
       if (!r.ok) throw new Error(data.detail || "Analysis failed");
       setResult(data);
@@ -37,11 +76,22 @@ export default function Home() {
 
   async function explain() {
     if (!result) return;
-    const r = await fetch(`${API}/api/explain`, { method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ results: result, question: "Explain these results" }) });
-    const data = await r.json();
-    setAiText(data.text);
+    try {
+      const r = await fetch(`${API}/api/explain`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ results: result, question: "Explain these results" })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.detail || "AI explanation failed");
+      setAiResponse(data);
+    } catch (e: any) {
+      setAiResponse({
+        provider: "unavailable",
+        is_mock: true,
+        text: `[AI unavailable] ${e.message}. Computed results above are unaffected.`,
+      });
+    }
   }
 
   function download() {
@@ -54,8 +104,18 @@ export default function Home() {
     <main className="min-h-screen bg-white text-slate-900 font-sans">
       <header className="border-b px-6 py-4 flex justify-between items-center">
         <div><h1 className="text-2xl font-bold text-teal-700">PhyloLoom AI</h1>
-        <p className="text-sm text-slate-500">Computational Genomics &amp; Evolutionary Analysis Workspace</p></div>
-        <div className="flex items-center gap-3"><a href="/methods" className="text-sm text-teal-700 underline">Methods &amp; Limitations</a><span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">AI: MOCK provider</span></div>
+          <p className="text-sm text-slate-500">Computational Genomics &amp; Evolutionary Analysis Workspace</p></div>
+        <div className="flex items-center gap-3"><a href="/methods" className="text-sm text-teal-700 underline">Methods &amp; Limitations</a>{!providerChecked ? (
+          <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">AI: checking...</span>
+        ) : !providerHealth ? (
+          <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">AI: status unavailable</span>
+        ) : providerHealth.is_mock ? (
+          <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">AI: MOCK provider</span>
+        ) : (
+          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+            AI: Meta — {providerHealth.model || providerHealth.ai_provider}
+          </span>
+        )}</div>
       </header>
 
       <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-6">
@@ -99,10 +159,10 @@ export default function Home() {
             <div className="mb-4">
               <h3 className="font-semibold">Variant Explorer — identity {result.comparison.identity_percent}%</h3>
               {result.comparison.variants.length === 0 ? <p className="text-sm">No differences found.</p> :
-              <table className="w-full text-sm mt-2"><thead><tr className="text-left border-b"><th>Pos</th><th>Type</th><th>Ref</th><th>Alt</th></tr></thead>
-              <tbody>{result.comparison.variants.map((v, i) => (
-                <tr key={i} className="border-b font-mono"><td>{v.ref_pos}</td><td>{v.type}</td><td>{v.ref ?? "—"}</td><td>{v.alt ?? "—"}</td></tr>))}
-              </tbody></table>}
+                <table className="w-full text-sm mt-2"><thead><tr className="text-left border-b"><th>Pos</th><th>Type</th><th>Ref</th><th>Alt</th></tr></thead>
+                  <tbody>{result.comparison.variants.map((v, i) => (
+                    <tr key={i} className="border-b font-mono"><td>{v.ref_pos}</td><td>{v.type}</td><td>{v.ref ?? "—"}</td><td>{v.alt ?? "—"}</td></tr>))}
+                  </tbody></table>}
               <p className="text-xs text-slate-400 mt-1">{result.comparison.method}. {result.comparison.note}</p>
             </div>
           )}
@@ -112,7 +172,7 @@ export default function Home() {
               <table className="text-sm font-mono mt-2"><tbody>
                 {result.phylogeny.matrix.map((row, i) => (
                   <tr key={i}><td className="pr-2 font-sans">{result.phylogeny!.names[i]}</td>
-                  {row.map((d, j) => <td key={j} className="px-2">{d.toFixed(3)}</td>)}</tr>))}
+                    {row.map((d, j) => <td key={j} className="px-2">{d.toFixed(3)}</td>)}</tr>))}
               </tbody></table>
               <div className="mt-3"><PhyloTree newick={result.phylogeny.newick} /></div>
               <details className="mt-2"><summary className="text-xs text-slate-500 cursor-pointer">Raw Newick (for reproducibility / download)</summary><p className="text-xs font-mono bg-slate-50 p-2 rounded mt-1 break-all">{result.phylogeny.newick}</p></details>
@@ -122,15 +182,27 @@ export default function Home() {
           {result && (
             <div className="flex gap-2 flex-wrap">
               <button onClick={download} className="border px-3 py-2 rounded text-sm">Download JSON</button>
-              <button onClick={explain} className="border px-3 py-2 rounded text-sm">Ask AI Copilot (mock)</button>
+              <button onClick={explain} className="border px-3 py-2 rounded text-sm">Ask AI Copilot</button>
             </div>
           )}
-          {aiText && <p className="mt-3 text-sm bg-amber-50 border border-amber-200 p-3 rounded">{aiText}</p>}
+          {aiResponse && (
+  <div className="mt-3 text-sm bg-amber-50 border border-amber-200 p-3 rounded">
+    <span className={`text-xs px-2 py-0.5 rounded ${aiResponse.is_mock ? "bg-amber-100 text-amber-800" : "bg-green-100 text-green-800"}`}>
+      {aiResponse.is_mock
+        ? (aiResponse.fallback_reason ? "AI: MOCK fallback" : "AI: MOCK provider")
+        : `AI: Meta — ${aiResponse.model || aiResponse.provider}`}
+    </span>
+    <p className="mt-2 whitespace-pre-line">{aiResponse.text}</p>
+    {aiResponse.fallback_reason && (
+      <p className="mt-2 text-xs text-amber-700">{aiResponse.fallback_reason}</p>
+    )}
+  </div>
+)}
           {result && <p className="text-xs text-slate-400 mt-3">{result.disclaimer}</p>}
         </section>
       </div>
-    <section className="max-w-6xl mx-auto px-6 pb-10"><div className="border rounded-xl p-4"><h2 className="font-semibold mb-1">Export Results</h2><ExportResults data={result} input={input} /></div></section>
-    <section className="max-w-6xl mx-auto px-6 pb-10"><div className="border rounded-xl p-4"><h2 className="font-semibold mb-1">Protein Explorer</h2><p className="text-sm text-slate-500 mb-3">Interactive 3D structure viewer (3Dmol.js). Load the experimental demo structure, upload a PDB file, or paste PDB text. Highlight a residue by number.</p><ProteinViewer /></div></section>
+      <section className="max-w-6xl mx-auto px-6 pb-10"><div className="border rounded-xl p-4"><h2 className="font-semibold mb-1">Export Results</h2><ExportResults data={result} input={input} /></div></section>
+      <section className="max-w-6xl mx-auto px-6 pb-10"><div className="border rounded-xl p-4"><h2 className="font-semibold mb-1">Protein Explorer</h2><p className="text-sm text-slate-500 mb-3">Interactive 3D structure viewer (3Dmol.js). Load the experimental demo structure, upload a PDB file, or paste PDB text. Highlight a residue by number.</p><ProteinViewer /></div></section>
     </main>
   );
 }

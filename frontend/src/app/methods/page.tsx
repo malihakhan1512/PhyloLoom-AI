@@ -39,15 +39,15 @@ export default function Methods() {
           <p>Structures are rendered with 3Dmol.js from user-supplied PDB files, the RCSB PDB demo structure (1CRN, crambin, experimental X-ray), or a predicted structure loaded from AlphaFold DB by UniProt accession (e.g. P69905), in which case the average pLDDT reported by AlphaFold DB is displayed. Experimental and predicted structures are labeled as different evidence categories. PhyloLoom does not perform structure prediction and does not claim a submitted sequence has a known structure.</p></section>
 
         <section><h2 className="font-semibold text-lg">AI Research Copilot</h2>
-          <p>The copilot currently uses a <strong>clearly labeled mock provider</strong> that returns no biological claims. When a real provider is connected, it receives only computed results from this backend and must not invent numerical values. AI-generated interpretation is always visually distinguished from computed measurements.</p></section>
+          <p>The copilot can use <strong>Meta Muse Spark (<code>muse-spark-1.3</code>) via the Meta Model API</strong> when the backend is configured, or a <strong>clearly labeled mock provider</strong> when it is not. The provider receives the user&apos;s question and structured computed-result fields — such as sequence counts, sequence identifiers, summary statistics, comparison values and method metadata. Backend fields named <code>sequence</code>, <code>raw_sequence</code>, <code>fasta_text</code> or <code>sequences_raw</code> are removed before transmission. The copilot explains computed outputs, must not invent numerical values, and is not a clinical diagnostic tool. If the Meta provider is unavailable, timeout occurs, or the request fails, PhyloLoom may return a clearly labeled Mock fallback; computed results are unaffected. AI-generated interpretation is always visually distinguished from computed measurements.</p></section>
 
         <section><h2 className="font-semibold text-lg">Privacy &amp; data handling</h2>
-          <p>Uploaded sequences are processed in server memory and are not stored in a database or written to disk. Do not submit confidential, clinical, or personally identifiable genomic data. Sequence data is not sent to any external AI provider in the current version.</p></section>
+          <p>Uploaded sequences are processed in server memory and are not stored in a database or written to disk. Do not submit confidential, clinical, or personally identifiable genomic data. When the Meta copilot is enabled, the question and structured computed results described above are sent to Meta&apos;s Model API at <code>https://api.meta.ai/v1</code>; raw sequence fields listed above are removed by the backend before transmission. Analysis itself is computed locally by the PhyloLoom backend and does not depend on the AI provider.</p></section>
 
         <section><h2 className="font-semibold text-lg">Input limits</h2>
           <p>FASTA: max 50 sequences, max 100,000 residues each. PDB upload: max 5 MB. FASTQ, genome assembly, and variant calling (VCF) are not supported.</p></section>
 
-        <p className="text-xs text-slate-400">Software: Python, FastAPI, Biopython, Next.js, 3Dmol.js. Methods page v0.2.0.</p>
+        <p className="text-xs text-slate-400">Software: Python, FastAPI, Biopython, Next.js, 3Dmol.js. Methods page v0.3.0.</p>
       </div>
     </main>
   );

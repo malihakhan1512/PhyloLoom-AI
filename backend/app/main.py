@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -6,10 +7,20 @@ from .core.stats import nucleotide_stats, protein_stats
 from .core.align import pairwise_variants
 from .core.phylo import distance_matrix_and_tree
 from .ai.mock import MockAIProvider
+from .ai.meta import MetaAIProvider, NotConfiguredError
 
 app = FastAPI(title="PhyloLoom AI", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_methods=["*"], allow_headers=["*"])
-ai = MockAIProvider()
+def _make_provider():
+    if (os.getenv("AI_PROVIDER") or "mock").lower() == "meta":
+        try:
+            return MetaAIProvider()
+        except Exception as e:
+            print(f"[PhyloLoom] Meta provider unavailable, falling back to MOCK: {e}")
+            return MockAIProvider()
+    return MockAIProvider()
+
+ai = _make_provider()
 
 class AnalyzeIn(BaseModel):
     fasta_text: str
@@ -20,8 +31,13 @@ class ExplainIn(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "ai_provider": "mock", "version": "0.1.0"}
-
+    return {
+        "status": "ok",
+        "ai_provider": ai.name,
+        "is_mock": ai.is_mock,
+        "model": getattr(ai, "model_id", None),
+        "version": "0.1.0",
+    }
 @app.post("/api/analyze")
 def analyze(body: AnalyzeIn):
     try:
@@ -44,4 +60,10 @@ def analyze(body: AnalyzeIn):
 
 @app.post("/api/explain")
 def explain(body: ExplainIn):
-    return ai.explain_analysis(body.results, body.question)
+    try:
+        return ai.explain_analysis(body.results, body.question)
+    except Exception as e:
+        print(f"[PhyloLoom] Meta explain failed: {type(e).__name__}: {str(e)[:500]}", flush=True)
+        fallback = MockAIProvider().explain_analysis(body.results, body.question)
+        fallback["fallback_reason"] = f"Meta provider failed: {type(e).__name__}: {str(e)[:300]}"
+        return fallback
