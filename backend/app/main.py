@@ -7,7 +7,10 @@ from .core.stats import nucleotide_stats, protein_stats
 from .core.align import pairwise_variants
 from .core.phylo import distance_matrix_and_tree
 from .ai.mock import MockAIProvider
-from .ai.meta import MetaAIProvider, NotConfiguredError
+from .ai.meta import MetaAIProvider
+from .investigation.demo import build_hbb_demo_graph
+from .investigation.graph import validate_graph
+from .investigation.descriptors import descriptor_delta
 
 app = FastAPI(title="PhyloLoom AI", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_methods=["*"], allow_headers=["*"])
@@ -67,3 +70,22 @@ def explain(body: ExplainIn):
         fallback = MockAIProvider().explain_analysis(body.results, body.question)
         fallback["fallback_reason"] = f"Meta provider failed: {type(e).__name__}: {str(e)[:300]}"
         return fallback
+
+@app.get("/api/investigation/demo/hbb")
+def investigation_demo_hbb():
+    graph = build_hbb_demo_graph()
+    errors = validate_graph(graph)
+    return {
+        "demo": True,
+        "demo_label": "DEMO data - not a user analysis",
+        "accession": "P68871",
+        "gene": "HBB",
+        "variant": {
+            "mature_chain": "Glu6Val",
+            "precursor": "Glu7Val",
+            "coordinate_warning": "Mature-chain position 6 corresponds to precursor position 7 in P68871. Numbering schemes are not interchangeable.",
+        },
+        "descriptor_delta": descriptor_delta("E", "V"),
+        "graph": graph.model_dump(mode="json"),
+        "graph_errors": errors,
+    }    

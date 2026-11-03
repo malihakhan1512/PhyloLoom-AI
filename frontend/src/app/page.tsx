@@ -105,7 +105,7 @@ export default function Home() {
       <header className="border-b px-6 py-4 flex justify-between items-center">
         <div><h1 className="text-2xl font-bold text-teal-700">PhyloLoom AI</h1>
           <p className="text-sm text-slate-500">Computational Genomics &amp; Evolutionary Analysis Workspace</p></div>
-        <div className="flex items-center gap-3"><a href="/methods" className="text-sm text-teal-700 underline">Methods &amp; Limitations</a>{!providerChecked ? (
+        <div className="flex items-center gap-3"><a href="/investigate" className="text-sm text-teal-700 underline">Investigation</a><a href="/methods" className="text-sm text-teal-700 underline">Methods &amp; Limitations</a>{!providerChecked ? (
           <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">AI: checking...</span>
         ) : !providerHealth ? (
           <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">AI: status unavailable</span>
@@ -186,18 +186,18 @@ export default function Home() {
             </div>
           )}
           {aiResponse && (
-  <div className="mt-3 text-sm bg-amber-50 border border-amber-200 p-3 rounded">
-    <span className={`text-xs px-2 py-0.5 rounded ${aiResponse.is_mock ? "bg-amber-100 text-amber-800" : "bg-green-100 text-green-800"}`}>
-      {aiResponse.is_mock
-        ? (aiResponse.fallback_reason ? "AI: MOCK fallback" : "AI: MOCK provider")
-        : `AI: Meta — ${aiResponse.model || aiResponse.provider}`}
-    </span>
-    <p className="mt-2 whitespace-pre-line">{aiResponse.text}</p>
-    {aiResponse.fallback_reason && (
-      <p className="mt-2 text-xs text-amber-700">{aiResponse.fallback_reason}</p>
-    )}
-  </div>
-)}
+            <div className="mt-3 text-sm bg-amber-50 border border-amber-200 p-3 rounded">
+              <span className={`text-xs px-2 py-0.5 rounded ${aiResponse.is_mock ? "bg-amber-100 text-amber-800" : "bg-green-100 text-green-800"}`}>
+                {aiResponse.is_mock
+                  ? (aiResponse.fallback_reason ? "AI: MOCK fallback" : "AI: MOCK provider")
+                  : `AI: Meta — ${aiResponse.model || aiResponse.provider}`}
+              </span>
+              <p className="mt-2 whitespace-pre-line">{aiResponse.text}</p>
+              {aiResponse.fallback_reason && (
+                <p className="mt-2 text-xs text-amber-700">{aiResponse.fallback_reason}</p>
+              )}
+            </div>
+          )}
           {result && <p className="text-xs text-slate-400 mt-3">{result.disclaimer}</p>}
         </section>
       </div>
