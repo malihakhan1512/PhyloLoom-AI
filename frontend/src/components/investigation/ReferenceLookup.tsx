@@ -3,6 +3,7 @@ import { useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 import LoadingState from "@/components/ui/LoadingState";
+import CopyButton from "@/components/ui/CopyButton";
 
 type UniprotResult = {
   status: "available" | "unavailable";
@@ -105,7 +106,7 @@ export default function ReferenceLookup() {
             <strong>Status:</strong> available
           </p>
           <p>
-            <strong>Accession:</strong> {result.accession}
+            <strong>Accession:</strong> {result.accession} <CopyButton value={result.accession} label="Accession" />
           </p>
           <p>
             <strong>UniProt ID:</strong> {result.id}
@@ -125,6 +126,7 @@ export default function ReferenceLookup() {
           <p className="break-all">
             <strong>Sequence SHA-256:</strong>
             <code className="block mt-1 text-xs">{result.sequence_sha256}</code>
+            <span className="inline-block mt-1"><CopyButton value={result.sequence_sha256 ?? ""} label="Sequence SHA-256" /></span>
           </p>
           {result.source_url && (
             <p className="mt-2">
