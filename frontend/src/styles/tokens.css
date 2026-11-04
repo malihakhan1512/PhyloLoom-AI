@@ -144,3 +144,172 @@ body{background:var(--bg);color:var(--ink)}
 :root[data-theme="dark"] code{
   color:var(--ink);
 }
+
+/* ---------- Landing / hero motion (transform + opacity only) ---------- */
+.pl-hero-letter{
+  display:inline-block;
+  animation:plRise var(--dur-hero) var(--ease-out) both;
+}
+@keyframes plRise{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.pl-shimmer{
+  background:linear-gradient(100deg,var(--accent) 20%,#8b7cf6 40%,var(--accent) 60%);
+  background-size:220% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  animation:plShimmer 7s ease-in-out infinite;
+}
+@keyframes plShimmer{
+  0%,100%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+}
+.pl-float-slow{
+  animation:plFloat 7s ease-in-out infinite;
+}
+@keyframes plFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-4px)}
+}
+.pl-blink{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:plBlink 4.6s infinite;
+}
+@keyframes plBlink{
+  0%,91%,100%{transform:scaleY(1)}
+  94%{transform:scaleY(.08)}
+  97%{transform:scaleY(1)}
+}
+.pl-helix-drift{
+  animation:plHelix 9s ease-in-out infinite;
+  transform-origin:center;
+}
+@keyframes plHelix{
+  0%,100%{transform:translateY(0) rotate(-1.2deg)}
+  50%{transform:translateY(-5px) rotate(1.2deg)}
+}
+.pl-card{
+  transition:transform var(--dur-base) var(--ease-out),box-shadow var(--dur-base) var(--ease-out),border-color var(--dur-fast);
+}
+.pl-card:hover{
+  transform:translateY(-4px);
+  box-shadow:var(--shadow-1);
+}
+.pl-stagger>*{
+  animation:plRise var(--dur-hero) var(--ease-out) both;
+}
+.pl-stagger>*:nth-child(1){animation-delay:0ms}
+.pl-stagger>*:nth-child(2){animation-delay:40ms}
+.pl-stagger>*:nth-child(3){animation-delay:80ms}
+.pl-stagger>*:nth-child(4){animation-delay:120ms}
+.pl-stagger>*:nth-child(5){animation-delay:160ms}
+.pl-stagger>*:nth-child(6){animation-delay:200ms}
+
+/* ============ LANDER (restored original design, token-mapped) ============ */
+.pl-land{
+  --land-paper:#fbfffd; --land-ink:#26304d; --land-soft:#5b6684;
+  --land-mint:#d4f5ea; --land-mint-d:#4fc9a8;
+  --land-lav:#e4dcfc; --land-lav-d:#8a73e8;
+  --land-sky:#d5eafe; --land-sky-d:#4a9fe8;
+  --land-coral:#ffd3cb; --land-coral-d:#ff7a68;
+  --land-spring:cubic-bezier(.34,1.56,.64,1);
+  background:var(--land-paper); color:var(--land-ink);
+}
+:root[data-theme="dark"] .pl-land{
+  --land-paper:#101a2e; --land-ink:#eef3ff; --land-soft:#b6c2d6;
+}
+.pl-land-btn{
+  display:inline-flex; align-items:center; gap:8px; min-height:44px;
+  font-weight:800; font-size:1.02rem; padding:12px 26px; border-radius:99px;
+  text-decoration:none; color:var(--land-ink); background:var(--land-mint-d);
+  box-shadow:0 5px 0 #2fa488;
+  transition:transform .35s var(--land-spring), box-shadow .2s;
+}
+.pl-land-btn:hover{ transform:translateY(-4px) scale(1.04) rotate(-1.5deg); box-shadow:0 9px 0 #2fa488; }
+.pl-land-btn:active{ transform:translateY(3px) scale(.97); box-shadow:0 1px 0 #2fa488; }
+.pl-land-btn.alt{ background:var(--land-lav); box-shadow:0 5px 0 var(--land-lav-d); }
+.pl-land-btn.alt:hover{ box-shadow:0 9px 0 var(--land-lav-d); }
+.pl-land-badge{
+  display:inline-block; background:var(--land-sky); color:#2b6cb0;
+  padding:6px 16px; border-radius:99px; font-weight:800; font-size:.9rem;
+}
+:root[data-theme="dark"] .pl-land-badge{ color:#bfdbfe; }
+
+@keyframes plDrift{
+  0%{transform:translate(0,0) rotate(0)}
+  50%{transform:translate(var(--dx,40px),-40px) rotate(180deg)}
+  100%{transform:translate(0,0) rotate(360deg)}
+}
+.pl-mol{ position:absolute; opacity:.5; animation:plDrift linear infinite; }
+@keyframes plTwinkle{ 0%,100%{transform:scale(.3) rotate(0);opacity:.2} 50%{transform:scale(1) rotate(45deg);opacity:1} }
+.pl-spark{ position:absolute; animation:plTwinkle 3s ease-in-out infinite; }
+@keyframes plMorph{
+  0%,100%{border-radius:46% 54% 50% 50%/52% 46% 54% 48%}
+  50%{border-radius:56% 44% 42% 58%/44% 56% 44% 56%; transform:rotate(4deg)}
+}
+.pl-stage-blob{
+  position:absolute; inset:6% 4% 4%;
+  background:radial-gradient(circle at 35% 30%, var(--land-mint), var(--land-lav) 70%, var(--land-sky));
+  animation:plMorph 12s ease-in-out infinite;
+}
+@keyframes plBob{ 0%,100%{transform:translateY(0) rotate(-4deg)} 50%{transform:translateY(-16px) rotate(5deg)} }
+.pl-float{ position:absolute; animation:plBob var(--t,5s) ease-in-out infinite; animation-delay:var(--d,0s); background:none; border:0; padding:0; cursor:pointer; }
+@keyframes plHop{ 40%{transform:translateY(-26px) scale(1.15) rotate(8deg)} }
+.pl-hop{ animation:plHop .7s var(--land-spring); }
+@keyframes plPop{ from{transform:scale(.5); opacity:0} }
+.pl-say{
+  position:absolute; left:6%; top:-2%; z-index:3; max-width:72%;
+  background:#fff; color:#26304d; border:3px solid #26304d; border-radius:20px 20px 20px 4px;
+  padding:8px 16px; font-weight:800; font-size:.95rem; box-shadow:0 5px 0 var(--land-lav);
+  animation:plPop .5s var(--land-spring);
+}
+.pl-land-card{
+  --c:var(--land-mint); --cd:var(--land-mint-d);
+  display:block; background:var(--land-paper); border:3px solid var(--c); border-radius:28px;
+  padding:26px; position:relative; overflow:hidden; text-decoration:none; color:inherit;
+  transition:transform .45s var(--land-spring), box-shadow .3s, border-color .3s;
+}
+.pl-land-card::after{
+  content:""; position:absolute; right:-40px; top:-40px; width:130px; height:130px;
+  border-radius:50%; background:var(--c); opacity:.5; transition:transform .5s var(--land-spring);
+}
+.pl-land-card:hover{ transform:translateY(-8px) rotate(-1deg); border-color:var(--cd); box-shadow:0 14px 0 var(--c); }
+.pl-land-card:hover::after{ transform:scale(1.5); }
+.pl-land-ico{
+  position:relative; z-index:1; width:60px; height:60px; border-radius:20px;
+  background:var(--c); display:grid; place-items:center; font-size:28px;
+  transition:transform .5s var(--land-spring);
+}
+.pl-land-card:hover .pl-land-ico{ transform:rotate(-12deg) scale(1.12); }
+.pl-crew-card{
+  text-align:center; background:var(--land-paper); border:3px dashed var(--land-lav-d);
+  border-radius:28px; padding:24px;
+}
+
+/* ============ LANDER DARK-MODE TEXT FIX ============
+   Pastel/light surfaces are "light islands": their text is
+   always dark navy, in BOTH themes. Only true dark surfaces
+   get light text. */
+.pl-land-badge{
+  background:var(--land-sky)!important;
+  color:#23406b!important;
+}
+.pl-land-btn{
+  color:#26304d!important;
+}
+.pl-land-btn.alt{
+  background:#e4dcfc!important;
+  color:#26304d!important;
+  box-shadow:0 5px 0 #8a73e8!important;
+}
+.pl-land-btn.alt:hover{ box-shadow:0 9px 0 #8a73e8!important; }
+.pl-crew-tag{
+  background:var(--land-mint);
+  color:#26304d!important;
+  border:1.5px solid #2fa488;
+}
+/* Crew quotes/names sit on the dark card — keep them light */
+.pl-crew-card{ color:var(--land-ink); }
