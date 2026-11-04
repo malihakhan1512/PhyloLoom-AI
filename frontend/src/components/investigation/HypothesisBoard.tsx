@@ -32,9 +32,9 @@ export default function HypothesisBoard({ cards }: { cards: HypothesisCard[] }) 
   }
 
   return (
-    <div className="grid md:grid-cols-2 gap-4">
+    <div className="grid lg:grid-cols-2 gap-4 items-stretch">
       {cards.map((card) => (
-        <article key={card.id} className="border rounded-xl p-4 bg-amber-50">
+        <article key={card.id} className="border rounded-xl p-4 bg-amber-50 h-full">
           <div className="flex flex-wrap gap-2 items-center">
             <h3 className="font-semibold">{card.title}</h3>
             <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">

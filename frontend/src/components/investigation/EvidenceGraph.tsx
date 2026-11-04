@@ -33,18 +33,52 @@ const CLASS_STYLE: Record<string, string> = {
 };
 
 const COL_X: Record<string, number> = {
-  Sequence: 90,
-  Variant: 225,
-  AnalysisArtifact: 365,
-  EvidenceItem: 505,
-  Claim: 650,
-  Hypothesis: 650,
-  TestRun: 505,
-  Report: 650,
+  Sequence: 105,
+  Variant: 285,
+  AnalysisArtifact: 465,
+  EvidenceItem: 645,
+  Claim: 835,
+  Hypothesis: 835,
+  TestRun: 645,
+  Report: 835,
 };
 
-function shortLabel(s: string, n = 22) {
+const NODE_W = 148;
+const NODE_H = 64;
+
+function shortLabel(s: string, n = 28) {
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
+}
+
+function edgeColor(type: string) {
+  if (type === "supports") return "#059669";
+  if (type === "contradicts") return "#dc2626";
+  return "#94a3b8";
+}
+
+function edgePath(
+  s: { x: number; y: number },
+  t: { x: number; y: number }
+) {
+  const sx = s.x + NODE_W / 2;
+  const tx = t.x - NODE_W / 2;
+
+  // Same-column or backwards edges: route below the nodes instead of through them.
+  if (tx <= sx) {
+    const midY = Math.max(s.y, t.y) + 78;
+    return {
+      d: `M ${s.x} ${s.y + NODE_H / 2} C ${s.x - 40} ${midY}, ${t.x + 40} ${midY}, ${t.x} ${t.y + NODE_H / 2}`,
+      labelX: (s.x + t.x) / 2,
+      labelY: midY - 8,
+    };
+  }
+
+  const midX = (sx + tx) / 2;
+  return {
+    d: `M ${sx} ${s.y} C ${midX} ${s.y}, ${midX} ${t.y}, ${tx} ${t.y}`,
+    labelX: midX,
+    labelY: (s.y + t.y) / 2 - 10,
+  };
 }
 
 export default function EvidenceGraph({ graph }: { graph: EvidenceGraphData }) {
@@ -59,8 +93,8 @@ export default function EvidenceGraph({ graph }: { graph: EvidenceGraphData }) {
       counts[col] = idx + 1;
       return {
         node,
-        x: COL_X[col] ?? 365,
-        y: 70 + idx * 105,
+        x: COL_X[col] ?? 465,
+        y: 72 + idx * 112,
       };
     });
   }, [graph]);
@@ -71,22 +105,31 @@ export default function EvidenceGraph({ graph }: { graph: EvidenceGraphData }) {
     return m;
   }, [positioned]);
 
-  const height = Math.max(260, 70 + Math.max(...Object.values(
-    graph.nodes.reduce<Record<string, number>>((acc, n) => {
-      acc[n.type] = (acc[n.type] ?? 0) + 1;
-      return acc;
-    }, {})
-  ), 1) * 105);
+  const maxRows = Math.max(
+    1,
+    ...Object.values(
+      graph.nodes.reduce<Record<string, number>>((acc, n) => {
+        acc[n.type] = (acc[n.type] ?? 0) + 1;
+        return acc;
+      }, {})
+    )
+  );
+
+  const height = Math.max(250, 84 + maxRows * 112);
 
   function downloadJson() {
-    const blob = new Blob([JSON.stringify(graph, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(graph, null, 2)], {
+      type: "application/json",
+    });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "phyloloom-evidence-graph.json";
     a.click();
   }
 
-  const activeProvenance = selectedNode?.provenance ?? selectedEdge?.provenance ?? null;
+  const activeProvenance =
+    selectedNode?.provenance ?? selectedEdge?.provenance ?? null;
+
   const activeTitle = selectedNode
     ? `${selectedNode.type}: ${selectedNode.label}`
     : selectedEdge
@@ -101,84 +144,135 @@ export default function EvidenceGraph({ graph }: { graph: EvidenceGraphData }) {
         <span className="px-2 py-0.5 rounded bg-orange-100 text-orange-800">DEMO</span>
         <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800">HYPOTHESIS</span>
         <span className="px-2 py-0.5 rounded bg-violet-100 text-violet-800">MODEL_PREDICTION</span>
-        <span className="text-slate-500">Green solid = supports · Red dashed = contradicts · Grey = derived_from / other</span>
-        <button onClick={downloadJson} className="ml-auto border px-2 py-1 rounded">Download graph JSON</button>
+        <span className="pl-ink-faint">
+          Green solid = supports · Red dashed = contradicts · Grey curved = derived_from / other
+        </span>
+        <button onClick={downloadJson} className="ml-auto border px-2 py-1 rounded min-h-[36px]">
+          Download graph JSON
+        </button>
       </div>
 
-      <svg viewBox={`0 0 740 ${height}`} className="w-full border rounded bg-white" role="img" aria-label="Evidence graph">
-        <defs>
-          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
-          </marker>
-        </defs>
+      <div className="overflow-x-auto border rounded bg-white">
+        <svg
+          viewBox={`0 0 940 ${height}`}
+          className="w-full min-w-[820px]"
+          role="img"
+          aria-label="Evidence graph"
+        >
+          <defs>
+            <marker
+              id="pl-arr"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+            </marker>
+          </defs>
 
-        {graph.edges.map((edge, i) => {
-          const s = byId.get(edge.source);
-          const t = byId.get(edge.target);
-          if (!s || !t) return null;
-          const isSupport = edge.type === "supports";
-          const isContra = edge.type === "contradicts";
-          return (
-            <g key={i}>
-              <line
-                x1={s.x} y1={s.y} x2={t.x} y2={t.y}
-                stroke="transparent" strokeWidth={14}
-                style={{ cursor: "pointer" }}
-                onClick={() => { setSelectedEdge(edge); setSelectedNode(null); }}
-              >
-                <title>{`${edge.source} ${edge.type} ${edge.target}`}</title>
-              </line>
-              <line
-                x1={s.x} y1={s.y} x2={t.x} y2={t.y}
-                stroke={isSupport ? "#059669" : isContra ? "#dc2626" : "#94a3b8"}
-                strokeWidth={isSupport || isContra ? 2.5 : 1.5}
-                strokeDasharray={isContra ? "6 4" : undefined}
-                markerEnd="url(#arr)"
-                pointerEvents="none"
+          {graph.edges.map((edge, i) => {
+            const s = byId.get(edge.source);
+            const t = byId.get(edge.target);
+            if (!s || !t) return null;
+
+            const path = edgePath(s, t);
+            const isContra = edge.type === "contradicts";
+
+            return (
+              <g key={i}>
+                <path
+                  d={path.d}
+                  fill="none"
+                  stroke="transparent"
+                  strokeWidth={18}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    setSelectedEdge(edge);
+                    setSelectedNode(null);
+                  }}
+                >
+                  <title>{`${edge.source} ${edge.type} ${edge.target}`}</title>
+                </path>
+
+                <path
+                  d={path.d}
+                  fill="none"
+                  stroke={edgeColor(edge.type)}
+                  strokeWidth={edge.type === "supports" || isContra ? 2.6 : 1.8}
+                  strokeDasharray={isContra ? "6 4" : undefined}
+                  markerEnd="url(#pl-arr)"
+                  pointerEvents="none"
+                />
+
+                <text
+                  x={path.labelX}
+                  y={path.labelY}
+                  fontSize={10}
+                  fontWeight={700}
+                  fill="#334155"
+                  textAnchor="middle"
+                  pointerEvents="none"
+                  style={{
+                    paintOrder: "stroke",
+                    stroke: "#ffffff",
+                    strokeWidth: 5,
+                    strokeLinejoin: "round",
+                  }}
+                >
+                  {edge.type}
+                </text>
+              </g>
+            );
+          })}
+
+          {positioned.map(({ node, x, y }) => (
+            <g
+              key={node.id}
+              transform={`translate(${x - NODE_W / 2}, ${y - NODE_H / 2})`}
+              onClick={() => {
+                setSelectedNode(node);
+                setSelectedEdge(null);
+              }}
+              style={{ cursor: "pointer" }}
+              role="button"
+              aria-label={`${node.type} ${node.label}`}
+            >
+              <rect
+                width={NODE_W}
+                height={NODE_H}
+                rx={10}
+                className={CLASS_STYLE[node.classification] ?? "fill-slate-100 stroke-slate-500"}
+                strokeWidth={selectedNode?.id === node.id ? 3.2 : 1.6}
               />
-              <text x={(s.x + t.x) / 2} y={(s.y + t.y) / 2 - 4} fontSize={9} fill="#475569" textAnchor="middle">
-                {edge.type}
+              <text x={NODE_W / 2} y={21} textAnchor="middle" fontSize={11} fontWeight={800} fill="#0f172a">
+                {node.type}
               </text>
+              <text x={NODE_W / 2} y={37} textAnchor="middle" fontSize={8.5} fill="#334155">
+                [{node.classification}]
+              </text>
+              <text x={NODE_W / 2} y={53} textAnchor="middle" fontSize={8.5} fill="#475569">
+                {shortLabel(node.label)}
+              </text>
+              <title>{node.label}</title>
             </g>
-          );
-        })}
-
-        {positioned.map(({ node, x, y }) => (
-          <g
-            key={node.id}
-            transform={`translate(${x - 62}, ${y - 26})`}
-            onClick={() => { setSelectedNode(node); setSelectedEdge(null); }}
-            style={{ cursor: "pointer" }}
-            role="button"
-            aria-label={`${node.type} ${node.label}`}
-          >
-            <rect
-              width={124} height={52} rx={8}
-              className={CLASS_STYLE[node.classification] ?? "fill-slate-100 stroke-slate-500"}
-              strokeWidth={selectedNode?.id === node.id ? 3 : 1.5}
-            />
-            <text x={62} y={18} textAnchor="middle" fontSize={10} fontWeight={700}>
-              {node.type}
-            </text>
-            <text x={62} y={32} textAnchor="middle" fontSize={8} fill="#334155">
-              [{node.classification}]
-            </text>
-            <text x={62} y={45} textAnchor="middle" fontSize={8} fill="#475569">
-              {shortLabel(node.label)}
-            </text>
-            <title>{node.label}</title>
-          </g>
-        ))}
-      </svg>
+          ))}
+        </svg>
+      </div>
 
       <div className="flex flex-wrap gap-1 mt-2">
         {graph.nodes.map((n) => (
           <button
             key={n.id}
-            onClick={() => { setSelectedNode(n); setSelectedEdge(null); }}
-            className="text-xs border px-2 py-1 rounded"
+            onClick={() => {
+              setSelectedNode(n);
+              setSelectedEdge(null);
+            }}
+            className="text-xs border px-2 py-1 rounded min-h-[36px]"
           >
-            {n.type}: {shortLabel(n.label, 30)}
+            {n.type}: {shortLabel(n.label, 34)}
           </button>
         ))}
       </div>
@@ -186,29 +280,39 @@ export default function EvidenceGraph({ graph }: { graph: EvidenceGraphData }) {
       {(selectedNode || selectedEdge) && (
         <div className="mt-3 border rounded p-3 bg-slate-50 text-sm">
           <p className="font-semibold">{activeTitle}</p>
+
           {selectedNode && (
             <>
               <p className="text-xs mt-1">
                 Classification: <strong>{selectedNode.classification}</strong> · ID: <code>{selectedNode.id}</code>
               </p>
               <p className="mt-2">{selectedNode.label}</p>
+
               {selectedNode.data && Object.keys(selectedNode.data).length > 0 && (
-                <pre className="mt-2 text-xs bg-white border rounded p-2 overflow-auto max-h-48">{JSON.stringify(selectedNode.data, null, 2)}</pre>
+                <pre className="mt-2 text-xs bg-white border rounded p-2 overflow-auto max-h-56">
+                  {JSON.stringify(selectedNode.data, null, 2)}
+                </pre>
               )}
             </>
           )}
+
           <p className="text-xs font-semibold mt-3">Provenance</p>
+
           {activeProvenance && Object.keys(activeProvenance).length > 0 ? (
-            <pre className="mt-1 text-xs bg-white border rounded p-2 overflow-auto max-h-48">{JSON.stringify(activeProvenance, null, 2)}</pre>
+            <pre className="mt-1 text-xs bg-white border rounded p-2 overflow-auto max-h-56">
+              {JSON.stringify(activeProvenance, null, 2)}
+            </pre>
           ) : (
-            <p className="text-xs text-slate-500 mt-1">Provenance: unavailable for this element — not hidden, explicitly missing.</p>
+            <p className="text-xs text-slate-500 mt-1">
+              Provenance: unavailable for this element — not hidden, explicitly missing.
+            </p>
           )}
         </div>
       )}
 
       <p className="text-xs text-slate-400 mt-2">
         Method: typed evidence graph ({graph.schema_version}). Click any node or edge for provenance.
-        Missing provenance is shown as unavailable, never invented.
+        Edge labels are offset above the connector so node labels remain readable.
       </p>
     </div>
   );

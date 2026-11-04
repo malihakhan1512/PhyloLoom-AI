@@ -278,8 +278,8 @@ export default function InvestigatePage() {
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
-        <div className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-demo)", background: "var(--ev-demo-bg)" }}>
+      <div className="max-w-[1600px] mx-auto p-4 md:p-6 grid gap-6 xl:grid-cols-2 items-start">
+        <div className="pl-surface p-4 xl:col-span-2" style={{ borderTop: "3px solid var(--accent-demo)", background: "var(--ev-demo-bg)" }}>
           <p className="font-bold" style={{ color: "var(--ev-demo-fg)" }}>DEMO — labelled demonstration data</p>
           <p className="text-sm" style={{ color: "var(--ev-demo-fg)" }}>
             HBB / P68871 beta-globin showcase. This is not a user analysis and is never blended with live results.
@@ -291,7 +291,7 @@ export default function InvestigatePage() {
 
         {data && (
           <>
-            <section id="mutation-detective-demo" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-demo)" }}>
+            <section id="mutation-detective-demo" className="pl-surface p-4 xl:col-span-2" style={{ borderTop: "3px solid var(--accent-demo)" }}>
               <SectionLabel accent="var(--accent-demo)">Demo Showcase</SectionLabel>
               <h2 className="font-semibold text-lg">Mutation Detective — {data.gene} {data.variant.mature_chain}</h2>
               <p className="text-sm mt-1">
@@ -306,7 +306,7 @@ export default function InvestigatePage() {
               )}
             </section>
 
-            <section className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
+            <section id="physicochemical-evidence" className="xl:col-span-2 pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
               <SectionLabel accent="var(--accent-live)">Computed Evidence</SectionLabel>
               <h2 className="font-semibold">Physicochemical Evidence <EvidenceBadge kind="COMPUTED" /></h2>
               <table className="text-sm mt-3 w-full max-w-xl pl-table-nums">
@@ -326,13 +326,13 @@ export default function InvestigatePage() {
               </p>
             </section>
 
-            <section id="evidence-graph" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
+            <section id="evidence-graph" className="pl-surface p-4 xl:col-span-2" style={{ borderTop: "3px solid var(--accent-live)" }}>
               <SectionLabel accent="var(--accent-live)">Traceability</SectionLabel>
               <h2 className="font-semibold mb-3">Evidence Graph — click any conclusion to trace it</h2>
               <EvidenceGraph graph={data.graph} />
             </section>
 
-            <section className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-agent)" }}>
+            <section id="demo-hypotheses" className="xl:col-span-2 pl-surface p-4" style={{ borderTop: "3px solid var(--accent-agent)" }}>
               <SectionLabel accent="var(--accent-agent)">Hypotheses</SectionLabel>
               <h2 className="font-semibold mb-1">Hypothesis Board — HBB Demo</h2>
               <p className="text-sm text-slate-500 mb-3">
@@ -346,7 +346,7 @@ export default function InvestigatePage() {
 
         {/* Live section is a SIBLING of the demo block above.
             It must remain usable even if the demo endpoint fails. */}
-        <section id="mutation-detective" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
+        <section id="mutation-detective" className="pl-surface p-4 xl:col-span-2" style={{ borderTop: "3px solid var(--accent-live)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <SectionLabel accent="var(--accent-live)">Live Analysis</SectionLabel>
             <h2 className="font-semibold text-lg">Live Mutation Detective</h2>
@@ -489,7 +489,7 @@ export default function InvestigatePage() {
             </div>
           )}
         </section>
-        <section id="evolution" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-evolution)" }}>
+        <section id="evolution" className="pl-surface p-4 xl:col-span-2" style={{ borderTop: "3px solid var(--accent-evolution)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <SectionLabel accent="var(--accent-evolution)">Evolution</SectionLabel>
             <h2 className="font-semibold text-lg">Evolutionary Anomaly Detector</h2>
@@ -578,7 +578,7 @@ export default function InvestigatePage() {
             </p>
           )}
         </section>
-        <section id="reference-lookup" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-structure)" }}>
+        <section id="reference-lookup" className="pl-surface p-4 min-w-0" style={{ borderTop: "3px solid var(--accent-structure)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <SectionLabel accent="var(--accent-structure)">Reference &amp; Structure</SectionLabel>
             <h2 className="font-semibold text-lg">UniProt Reference Record</h2>
@@ -596,7 +596,7 @@ export default function InvestigatePage() {
 
           <ReferenceLookup />
         </section>
-        <section id="structure-context" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-structure)" }}>
+        <section id="structure-context" className="pl-surface p-4 min-w-0" style={{ borderTop: "3px solid var(--accent-structure)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <SectionLabel accent="var(--accent-structure)">Reference &amp; Structure</SectionLabel>
             <h2 className="font-semibold text-lg">Structure Context</h2>
@@ -610,7 +610,7 @@ export default function InvestigatePage() {
           </p>
           <StructureContextPanel />
         </section>
-        <section id="hypothesis-generator" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-agent)" }}>
+        <section id="hypothesis-generator" className="pl-surface p-4 xl:col-span-2" style={{ borderTop: "3px solid var(--accent-agent)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <SectionLabel accent="var(--accent-agent)">Hypotheses</SectionLabel>
             <h2 className="font-semibold text-lg">Scientific Hypothesis Generator</h2>
@@ -625,7 +625,7 @@ export default function InvestigatePage() {
             />
           </div>
         </section>
-        <section id="export" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
+        <section id="export" className="xl:col-span-2 pl-surface p-4 min-w-0" style={{ borderTop: "3px solid var(--accent-live)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <SectionLabel accent="var(--accent-live)">Export</SectionLabel>
             <h2 className="font-semibold text-lg">Reproducible Investigation Export</h2>
