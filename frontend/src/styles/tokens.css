@@ -1,0 +1,146 @@
+:root{
+  --bg:#ffffff; --surface:#ffffff; --surface-2:#f8fafc; --surface-3:#f1f5f9;
+  --ink:#0f172a; --ink-soft:#475569; --ink-faint:#64748b;
+  --border:#e2e8f0; --border-strong:#cbd5e1;
+  --accent:#0f766e; --accent-strong:#115e59; --accent-soft:#ccfbf1;
+  --danger:#b91c1c; --danger-bg:#fef2f2;
+  --warning:#92400e; --warning-bg:#fffbeb;
+  --shadow-1:0 1px 3px rgba(15,23,42,.08),0 4px 14px rgba(15,23,42,.05);
+  --radius-s:6px; --radius-m:10px; --radius-l:14px;
+  --dur-fast:120ms; --dur-base:200ms; --dur-slow:400ms; --dur-hero:300ms;
+  --ease-out:cubic-bezier(.16,1,.3,1); --ease-in:cubic-bezier(.4,0,1,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --ev-computed-bg:#ecfdf5; --ev-computed-fg:#065f46; --ev-computed-border:#6ee7b7;
+  --ev-model-bg:#f5f3ff; --ev-model-fg:#5b21b6; --ev-model-border:#c4b5fd;
+  --ev-curated-bg:#eff6ff; --ev-curated-fg:#1e40af; --ev-curated-border:#93c5fd;
+  --ev-literature-bg:#ecfeff; --ev-literature-fg:#155e75; --ev-literature-border:#67e8f9;
+  --ev-hypothesis-bg:#fffbeb; --ev-hypothesis-fg:#92400e; --ev-hypothesis-border:#fcd34d;
+  --ev-demo-bg:#fff7ed; --ev-demo-fg:#9a3412; --ev-demo-border:#fdba74;
+  --accent-demo:#9a3412; --accent-live:#0f766e; --accent-evolution:#0369a1;
+  --accent-structure:#6d28d9; --accent-agent:#6d28d9;
+}
+:root[data-theme="dark"]{
+  --bg:#0b1220; --surface:#111c30; --surface-2:#16233c; --surface-3:#1c2c49;
+  --ink:#e8eef7; --ink-soft:#b6c2d6; --ink-faint:#8fa1bb;
+  --border:#263650; --border-strong:#35496b;
+  --accent:#2dd4bf; --accent-strong:#5eead4; --accent-soft:#134e4a;
+  --danger:#fca5a5; --danger-bg:#3a1620;
+  --warning:#fcd34d; --warning-bg:#3a2c10;
+  --shadow-1:0 1px 3px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.25);
+  --ev-computed-bg:#062e22; --ev-computed-fg:#6ee7b7; --ev-computed-border:#047857;
+  --ev-model-bg:#241445; --ev-model-fg:#c4b5fd; --ev-model-border:#7c3aed;
+  --ev-curated-bg:#12264d; --ev-curated-fg:#93c5fd; --ev-curated-border:#2563eb;
+  --ev-literature-bg:#0a2e3a; --ev-literature-fg:#67e8f9; --ev-literature-border:#0e7490;
+  --ev-hypothesis-bg:#3a2c10; --ev-hypothesis-fg:#fcd34d; --ev-hypothesis-border:#b45309;
+  --ev-demo-bg:#3a2110; --ev-demo-fg:#fdba74; --ev-demo-border:#c2410c;
+}
+html{background:var(--bg);color:var(--ink)}
+body{background:var(--bg);color:var(--ink)}
+.pl-surface{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-m);box-shadow:var(--shadow-1)}
+.pl-surface-2{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-m)}
+.pl-ink-soft{color:var(--ink-soft)} .pl-ink-faint{color:var(--ink-faint)}
+.pl-table-nums{font-variant-numeric:tabular-nums}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+/* ============================================================
+   DARK-MODE COMPATIBILITY LAYER
+   Remaps hardcoded light Tailwind classes inside existing
+   components to dark-safe token values. Light mode unaffected.
+   ============================================================ */
+:root[data-theme="dark"] .bg-white{
+  background-color:var(--surface-2)!important;
+  color:var(--ink);
+}
+:root[data-theme="dark"] .bg-slate-50{
+  background-color:var(--surface-2)!important;
+  color:var(--ink);
+}
+:root[data-theme="dark"] .bg-slate-100{
+  background-color:var(--surface-3)!important;
+  color:var(--ink);
+}
+:root[data-theme="dark"] .bg-amber-50{
+  background-color:#2b2110!important;
+  color:var(--ink);
+}
+:root[data-theme="dark"] .bg-amber-100{
+  background-color:#3a2c10!important;
+  color:#fcd34d;
+}
+:root[data-theme="dark"] .bg-orange-50{
+  background-color:#33200f!important;
+  color:var(--ink);
+}
+:root[data-theme="dark"] .bg-emerald-50,
+:root[data-theme="dark"] .bg-green-50,
+:root[data-theme="dark"] .bg-teal-50{
+  background-color:#0a2e26!important;
+  color:var(--ink);
+}
+:root[data-theme="dark"] .bg-emerald-100,
+:root[data-theme="dark"] .bg-green-100{
+  background-color:#0b3d31!important;
+  color:#6ee7b7;
+}
+:root[data-theme="dark"] .bg-red-50{
+  background-color:#33141c!important;
+  color:#fecaca;
+}
+:root[data-theme="dark"] .bg-red-100{
+  background-color:#451a24!important;
+  color:#fca5a5;
+}
+:root[data-theme="dark"] .bg-sky-50,
+:root[data-theme="dark"] .bg-blue-50{
+  background-color:#12263f!important;
+  color:var(--ink);
+}
+:root[data-theme="dark"] .bg-violet-50,
+:root[data-theme="dark"] .bg-purple-50{
+  background-color:#241845!important;
+  color:var(--ink);
+}
+
+/* Text remaps — small print was the worst offender */
+:root[data-theme="dark"] .text-slate-900{color:var(--ink)!important}
+:root[data-theme="dark"] .text-slate-700{color:var(--ink-soft)!important}
+:root[data-theme="dark"] .text-slate-600{color:var(--ink-soft)!important}
+:root[data-theme="dark"] .text-slate-500{color:var(--ink-soft)!important}
+:root[data-theme="dark"] .text-slate-400{color:var(--ink-faint)!important}
+:root[data-theme="dark"] .text-slate-300{color:var(--ink-faint)!important}
+:root[data-theme="dark"] .text-amber-700,
+:root[data-theme="dark"] .text-amber-800{color:#fcd34d!important}
+:root[data-theme="dark"] .text-orange-700,
+:root[data-theme="dark"] .text-orange-800{color:#fdba74!important}
+:root[data-theme="dark"] .text-red-600,
+:root[data-theme="dark"] .text-red-700{color:#fca5a5!important}
+:root[data-theme="dark"] .text-emerald-700,
+:root[data-theme="dark"] .text-emerald-800,
+:root[data-theme="dark"] .text-teal-700{color:#5eead4!important}
+:root[data-theme="dark"] .text-blue-700,
+:root[data-theme="dark"] .text-sky-700{color:#93c5fd!important}
+
+/* Form fields and borders */
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select{
+  background-color:var(--surface-2);
+  color:var(--ink);
+  border-color:var(--border-strong);
+}
+:root[data-theme="dark"] .border,
+:root[data-theme="dark"] .border-b,
+:root[data-theme="dark"] .border-t{
+  border-color:var(--border);
+}
+:root[data-theme="dark"] table,
+:root[data-theme="dark"] th,
+:root[data-theme="dark"] td{
+  border-color:var(--border);
+}
+:root[data-theme="dark"] code{
+  color:var(--ink);
+}

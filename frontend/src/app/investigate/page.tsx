@@ -11,6 +11,8 @@ import StructureContextPanel from "@/components/investigation/StructureContextPa
 import ReferenceLookup from "@/components/investigation/ReferenceLookup";
 import ReportExport from "@/components/investigation/ReportExport";
 import HypothesisAgentPanel, { AgentFinding } from "@/components/investigation/HypothesisAgentPanel";
+import EvidenceBadge from "@/components/ui/EvidenceBadge";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 type DemoResponse = {
@@ -243,19 +245,40 @@ export default function InvestigatePage() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-slate-900 font-sans">
-      <header className="border-b px-6 py-4 flex justify-between items-center">
+    <main className="min-h-screen font-sans" style={{ background: "var(--bg)", color: "var(--ink)" }}>
+      <header
+        className="px-6 py-4 flex flex-wrap gap-3 justify-between items-center"
+        style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}
+      >
         <div>
-          <a href="/" className="text-2xl font-bold text-teal-700">PhyloLoom AI</a>
-          <p className="text-sm text-slate-500">Biological Investigation Engine</p>
+          <a href="/" className="text-2xl font-black tracking-tight" style={{ color: "var(--accent)" }}>
+            PhyloLoom AI
+          </a>
+          <p className="text-sm pl-ink-soft">Biological Investigation Engine</p>
         </div>
-        <a href="/methods" className="text-sm text-teal-700 underline">Methods &amp; Limitations</a>
+        <div className="flex items-center gap-3 flex-wrap">
+          <a
+            href="/workspace"
+            className="inline-flex items-center min-h-[44px] text-sm underline"
+            style={{ color: "var(--accent)" }}
+          >
+            Workspace
+          </a>
+          <a
+            href="/methods"
+            className="inline-flex items-center min-h-[44px] text-sm underline"
+            style={{ color: "var(--accent)" }}
+          >
+            Methods &amp; Limitations
+          </a>
+          <ThemeToggle />
+        </div>
       </header>
 
       <div className="max-w-6xl mx-auto p-6 space-y-6">
-        <div className="border-2 border-orange-300 bg-orange-50 rounded-xl p-4">
-          <p className="font-bold text-orange-800">DEMO — labelled demonstration data</p>
-          <p className="text-sm text-orange-700">
+        <div className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-demo)", background: "var(--ev-demo-bg)" }}>
+          <p className="font-bold" style={{ color: "var(--ev-demo-fg)" }}>DEMO — labelled demonstration data</p>
+          <p className="text-sm" style={{ color: "var(--ev-demo-fg)" }}>
             HBB / P68871 beta-globin showcase. This is not a user analysis and is never blended with live results.
           </p>
         </div>
@@ -265,7 +288,7 @@ export default function InvestigatePage() {
 
         {data && (
           <>
-            <section className="border rounded-xl p-4">
+            <section id="mutation-detective-demo" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-demo)" }}>
               <h2 className="font-semibold text-lg">Mutation Detective — {data.gene} {data.variant.mature_chain}</h2>
               <p className="text-sm mt-1">
                 Accession: <code>{data.accession}</code> · Mature chain: <strong>{data.variant.mature_chain}</strong> ·
@@ -279,9 +302,9 @@ export default function InvestigatePage() {
               )}
             </section>
 
-            <section className="border rounded-xl p-4">
-              <h2 className="font-semibold">Physicochemical Evidence <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">COMPUTED</span></h2>
-              <table className="text-sm mt-3 w-full max-w-xl">
+            <section className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
+              <h2 className="font-semibold">Physicochemical Evidence <EvidenceBadge kind="COMPUTED" /></h2>
+              <table className="text-sm mt-3 w-full max-w-xl pl-table-nums">
                 <tbody>
                   <tr className="border-b"><td className="py-1">Hydropathy Δ (Kyte-Doolittle)</td><td className="font-mono">{data.descriptor_delta.delta.hydropathy_kd}</td></tr>
                   <tr className="border-b"><td className="py-1">Polarity Δ (Grantham)</td><td className="font-mono">{data.descriptor_delta.delta.polarity_grantham}</td></tr>
@@ -298,12 +321,12 @@ export default function InvestigatePage() {
               </p>
             </section>
 
-            <section className="border rounded-xl p-4">
+            <section id="evidence-graph" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
               <h2 className="font-semibold mb-3">Evidence Graph — click any conclusion to trace it</h2>
               <EvidenceGraph graph={data.graph} />
             </section>
 
-            <section className="border rounded-xl p-4">
+            <section className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-agent)" }}>
               <h2 className="font-semibold mb-1">Hypothesis Board — HBB Demo</h2>
               <p className="text-sm text-slate-500 mb-3">
                 Approved-template hypotheses generated from demo evidence. They are untested,
@@ -316,10 +339,10 @@ export default function InvestigatePage() {
 
         {/* Live section is a SIBLING of the demo block above.
             It must remain usable even if the demo endpoint fails. */}
-        <section className="border-2 border-teal-300 rounded-xl p-4">
+        <section id="mutation-detective" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-semibold text-lg">Live Mutation Detective</h2>
-            <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">LIVE COMPUTED</span>
+            <EvidenceBadge kind="COMPUTED" text="LIVE COMPUTED" />
             <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">Not demo data</span>
           </div>
 
@@ -457,10 +480,10 @@ export default function InvestigatePage() {
             </div>
           )}
         </section>
-        <section className="border-2 border-sky-300 rounded-xl p-4">
+        <section id="evolution" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-evolution)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-semibold text-lg">Evolutionary Anomaly Detector</h2>
-            <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">COMPUTED</span>
+            <EvidenceBadge kind="COMPUTED" />
           </div>
           <p className="text-sm text-slate-500 mt-1">
             Paste 3+ aligned homologous sequences (equal length, gaps allowed), or unaligned sequences if MAFFT is
@@ -541,12 +564,10 @@ export default function InvestigatePage() {
             </p>
           )}
         </section>
-        <section className="border-2 border-blue-300 rounded-xl p-4">
+        <section id="reference-lookup" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-structure)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-semibold text-lg">UniProt Reference Record</h2>
-            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-              CURATED_ASSERTION
-            </span>
+            <EvidenceBadge kind="CURATED_ASSERTION" />
             <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">
               External source
             </span>
@@ -560,10 +581,10 @@ export default function InvestigatePage() {
 
           <ReferenceLookup />
         </section>
-        <section className="border-2 border-violet-300 rounded-xl p-4">
+        <section id="structure-context" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-structure)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-semibold text-lg">Structure Context</h2>
-            <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">COMPUTED</span>
+            <EvidenceBadge kind="COMPUTED" />
             <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">Explicit chain mapping required</span>
           </div>
           <p className="text-sm text-slate-500 mt-1 mb-3">
@@ -573,11 +594,11 @@ export default function InvestigatePage() {
           </p>
           <StructureContextPanel />
         </section>
-        <section className="border-2 border-violet-300 rounded-xl p-4">
+        <section id="hypothesis-generator" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-agent)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-semibold text-lg">Scientific Hypothesis Generator</h2>
-            <span className="text-xs bg-violet-100 text-violet-800 px-2 py-1 rounded">Muse Spark when configured</span>
-            <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">HYPOTHESIS</span>
+            <EvidenceBadge kind="MODEL_PREDICTION" text="Muse Spark when configured" />
+            <EvidenceBadge kind="HYPOTHESIS" />
           </div>
           <div className="mt-3">
             <HypothesisAgentPanel
@@ -587,10 +608,10 @@ export default function InvestigatePage() {
             />
           </div>
         </section>
-        <section className="border-2 border-teal-300 rounded-xl p-4">
+        <section id="export" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-semibold text-lg">Reproducible Investigation Export</h2>
-            <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">M6</span>
+            <EvidenceBadge kind="COMPUTED" text="EXPORT" />
           </div>
           <div className="mt-3">
             <ReportExport sections={reportSections} />
