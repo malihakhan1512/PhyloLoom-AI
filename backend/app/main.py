@@ -11,6 +11,8 @@ from .ai.meta import MetaAIProvider
 from .investigation.demo import build_hbb_demo_graph
 from .investigation.graph import validate_graph
 from .investigation.descriptors import descriptor_delta
+from .investigation.mutation import investigate_pair
+from .investigation.counterfactual import enumerate_counterfactuals
 
 app = FastAPI(title="PhyloLoom AI", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_methods=["*"], allow_headers=["*"])
@@ -31,6 +33,16 @@ class AnalyzeIn(BaseModel):
 class ExplainIn(BaseModel):
     results: dict
     question: str = ""
+class MutationInvestigationIn(BaseModel):
+    reference_sequence: str
+    alternate_sequence: str
+    reference_id: str = "reference"
+    alternate_id: str = "alternate"
+    coordinate_system: str = "submitted_sequence_1_based"
+
+
+class CounterfactualIn(BaseModel):
+    ref_aa: str
 
 @app.get("/health")
 def health():
@@ -89,3 +101,24 @@ def investigation_demo_hbb():
         "graph": graph.model_dump(mode="json"),
         "graph_errors": errors,
     }    
+
+@app.post("/api/investigation/mutation")
+def investigation_mutation(body: MutationInvestigationIn):
+    try:
+        return investigate_pair(
+            body.reference_sequence,
+            body.alternate_sequence,
+            body.reference_id,
+            body.alternate_id,
+            body.coordinate_system,
+        )
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+
+@app.post("/api/investigation/counterfactual")
+def investigation_counterfactual(body: CounterfactualIn):
+    try:
+        return enumerate_counterfactuals(body.ref_aa)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
