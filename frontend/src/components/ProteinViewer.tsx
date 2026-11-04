@@ -73,15 +73,16 @@ async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
       <div ref={mountRef} className="w-full h-[420px] border rounded bg-white relative" />
       <p className="text-sm mt-2 bg-slate-50 border rounded p-2">{status}</p>
       <div className="flex gap-2 mt-3 flex-wrap items-center">
-        <button onClick={loadDemo} className="bg-teal-600 text-white px-3 py-2 rounded text-sm">Load Demo: 1CRN (experimental)</button>
-        <label className="border px-3 py-2 rounded text-sm cursor-pointer">Upload .pdb
+        <button onClick={loadDemo} className="pl-btn pl-btn-teal">Load Demo: 1CRN (experimental)</button>
+        <label className="pl-btn pl-btn-coral pl-btn-sm cursor-pointer">Upload .pdb
           <input type="file" accept=".pdb,.ent,.cif,.mmcif" className="hidden" onChange={onFile} /></label>
-        <input value={uniprot} onChange={e => setUniprot(e.target.value)} placeholder="UniProt ID e.g. P69905" className="border rounded px-2 py-2 text-sm w-48" /><button onClick={loadAlphaFold} className="bg-purple-600 text-white px-3 py-2 rounded text-sm">Load AlphaFold Prediction</button>
-        <select value={style} onChange={e => { setStyle(e.target.value); render(pdbText, e.target.value); }} className="border rounded px-2 py-2 text-sm">
+        <input value={uniprot} onChange={e => setUniprot(e.target.value)} placeholder="UniProt ID e.g. P69905" className="pl-field w-52" /><button onClick={loadAlphaFold} className="pl-btn pl-btn-lav">Load AlphaFold Prediction</button>
+        <select value={style} onChange={e => { setStyle(e.target.value); render(pdbText, e.target.value); }} className="pl-field"
+	>
           <option value="cartoon">Cartoon</option><option value="stick">Sticks</option><option value="sphere">Spheres</option>
         </select>
-        <input value={resi} onChange={e => setResi(e.target.value)} placeholder="Residue # to highlight" className="border rounded px-2 py-2 text-sm w-44" />
-        <button onClick={() => render(pdbText)} className="border px-3 py-2 rounded text-sm">Highlight</button>
+        <input value={resi} onChange={e => setResi(e.target.value)} placeholder="Residue # to highlight" className="pl-field w-52" />
+        <button onClick={() => render(pdbText)} className="pl-btn pl-btn-lav pl-btn-sm">Highlight</button>
       </div>
       <details className="mt-3">
         <summary className="text-sm text-slate-500 cursor-pointer">Paste PDB text manually</summary>

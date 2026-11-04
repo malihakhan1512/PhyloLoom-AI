@@ -30,13 +30,13 @@ export default function ExportResults({ data, input }: { data?: any, input?: str
       </p>
       <div className="flex gap-2 flex-wrap">
         <button disabled={!hasData} onClick={() => download("phyloloom-results.json", JSON.stringify(data, null, 2), "application/json")}
-          className="border px-3 py-2 rounded text-sm disabled:opacity-40">Download Results (JSON)</button>
+          className="pl-btn pl-btn-teal pl-btn-sm">Download Results (JSON)</button>
         <button disabled={!hasData} onClick={() => download("phyloloom-results.txt", JSON.stringify(data, null, 2))}
-          className="border px-3 py-2 rounded text-sm disabled:opacity-40">Download Results (TXT)</button>
+          className="pl-btn pl-btn-sky pl-btn-sm">Download Results (TXT)</button>
         <button disabled={!newick} onClick={() => newick && download("phyloloom-tree.newick", newick.replace(/:-[0-9.eE+\-]+/g, ":0"))}
-          className="border px-3 py-2 rounded text-sm disabled:opacity-40">Download Tree (Newick)</button>
+          className="pl-btn pl-btn-lav pl-btn-sm">Download Tree (Newick)</button>
         <button disabled={!input} onClick={() => input && download("phyloloom-input.fasta", input)}
-          className="border px-3 py-2 rounded text-sm disabled:opacity-40">Download Input (FASTA)</button>
+          className="pl-btn pl-btn-coral pl-btn-sm">Download Input (FASTA)</button>
       </div>
       {!newick && hasData && <p className="text-xs text-slate-400 mt-2">Newick export activates only when a tree was computed (3+ sequences).</p>}
     </div>

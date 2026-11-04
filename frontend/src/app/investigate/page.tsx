@@ -13,6 +13,7 @@ import ReportExport from "@/components/investigation/ReportExport";
 import HypothesisAgentPanel, { AgentFinding } from "@/components/investigation/HypothesisAgentPanel";
 import EvidenceBadge from "@/components/ui/EvidenceBadge";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import SiteHeader from "@/components/ui/SiteHeader";
 import SectionLabel from "@/components/ui/SectionLabel";
 import LoadingState from "@/components/ui/LoadingState";
 import EmptyState from "@/components/ui/EmptyState";
@@ -248,37 +249,10 @@ export default function InvestigatePage() {
   }
 
   return (
-    <main className="min-h-screen font-sans" style={{ background: "var(--bg)", color: "var(--ink)" }}>
-      <header
-        className="px-6 py-4 flex flex-wrap gap-3 justify-between items-center pl-enter"
-        style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}
-      >
-        <div>
-          <a href="/" className="text-2xl font-black tracking-tight" style={{ color: "var(--accent)" }}>
-            PhyloLoom AI
-          </a>
-          <p className="text-sm pl-ink-soft">Biological Investigation Engine</p>
-        </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <a
-            href="/workspace"
-            className="inline-flex items-center min-h-[44px] text-sm underline"
-            style={{ color: "var(--accent)" }}
-          >
-            Workspace
-          </a>
-          <a
-            href="/methods"
-            className="inline-flex items-center min-h-[44px] text-sm underline"
-            style={{ color: "var(--accent)" }}
-          >
-            Methods &amp; Limitations
-          </a>
-          <ThemeToggle />
-        </div>
-      </header>
+    <main className="min-h-screen font-sans" style={{ background: "transparent", color: "var(--ink)" }}>
+      <SiteHeader subtitle="Biological Investigation Engine" />
 
-      <div className="max-w-[1600px] mx-auto p-4 md:p-6 grid gap-6 xl:grid-cols-2 items-start">
+      <div className="max-w-[1380px] mx-auto px-4 py-6 md:px-8 md:py-8 grid gap-6 xl:grid-cols-2 items-start">
         <div className="pl-surface p-4 xl:col-span-2" style={{ borderTop: "3px solid var(--accent-demo)", background: "var(--ev-demo-bg)" }}>
           <p className="font-bold" style={{ color: "var(--ev-demo-fg)" }}>DEMO — labelled demonstration data</p>
           <p className="text-sm" style={{ color: "var(--ev-demo-fg)" }}>
@@ -387,7 +361,7 @@ export default function InvestigatePage() {
           <button
             onClick={runLiveInvestigation}
             disabled={liveLoading}
-            className="bg-teal-600 text-white px-4 py-2 rounded mt-3 disabled:opacity-50"
+            className="pl-btn pl-btn-teal mt-3"
           >
             {liveLoading ? "Investigating..." : "Run Live Investigation"}
           </button>
@@ -457,7 +431,7 @@ export default function InvestigatePage() {
                   <div className="mt-5">
                     <button
                       onClick={generateLiveHypotheses}
-                      className="border px-3 py-2 rounded text-sm"
+                      className="pl-btn pl-btn-lav pl-btn-sm"
                     >
                       Generate Hypothesis Cards
                     </button>
@@ -512,7 +486,7 @@ export default function InvestigatePage() {
           <button
             onClick={runEvolution}
             disabled={evoLoading}
-            className="bg-sky-600 text-white px-4 py-2 rounded mt-3 disabled:opacity-50"
+            className="pl-btn pl-btn-sky mt-3"
           >
             {evoLoading ? "Analyzing..." : "Run Evolutionary Analysis"}
           </button>

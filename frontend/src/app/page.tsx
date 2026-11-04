@@ -3,7 +3,6 @@ import { useEffect, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import HeroScientist from "@/components/ui/HeroScientist";
 import ProteinMascot, { type MascotKind } from "@/components/landing/ProteinMascot";
-import LandingBackground from "@/components/landing/LandingBackground";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import EvidenceBadge from "@/components/ui/EvidenceBadge";
 
@@ -159,7 +158,7 @@ export default function DashboardPage() {
 
   return (
     <main className="pl-land relative min-h-screen font-sans overflow-x-clip">
-      <LandingBackground />
+      
 
       {/* ---------- Header ---------- */}
       <header

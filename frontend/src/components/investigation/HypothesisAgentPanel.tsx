@@ -81,7 +81,7 @@ export default function HypothesisAgentPanel({
         ))}
       </ul>
 
-      <button onClick={run} disabled={loading || findings.length === 0} className="bg-violet-600 text-white px-4 py-2 rounded mt-3 disabled:opacity-50">
+      <button onClick={run} disabled={loading || findings.length === 0} className="pl-btn pl-btn-lav mt-3">
         {loading ? "Generating..." : "Generate AI Hypothesis Proposal"}
       </button>
       {findings.length === 0 && <p className="text-xs text-amber-700 mt-2">No findings available yet — run an investigation first.</p>}

@@ -1,34 +1,54 @@
-
 "use client";
 
-const DATASETS: Record<string, {label: string, desc: string, fasta: string}> = {
-  variant: {
+type DemoDataset = {
+  key: string;
+  label: string;
+  desc: string;
+  fasta: string;
+  buttonClass: string;
+};
+
+const DATASETS: DemoDataset[] = [
+  {
+    key: "variant",
     label: "Demo A: Variant comparison (2 seq)",
     desc: "2 sequences -> alignment + substitutions/indels",
-    fasta: ">ref\nACGTACGTACGTACGTACGT\n>alt\nACGTTCGTACGTACGACGT\n"
+    fasta: ">ref\nACGTACGTACGTACGTACGT\n>alt\nACGTTCGTACGTACGACGT\n",
+    buttonClass: "pl-btn pl-btn-sky pl-btn-sm",
   },
-  tree: {
+  {
+    key: "tree",
     label: "Demo B: Tree building (4 seq)",
     desc: "4 sequences -> distance matrix + Neighbor-Joining tree",
-    fasta: ">seq_A\nACGTACGTACGTACGTACGTACGT\n>seq_B\nACGTACGTACGTACGTTCGTACGT\n>seq_C\nACGTACGACCGTACGTTCGTACGA\n>seq_D\nTCGTTCGACCGTACGTTCGTTCGA\n"
+    fasta: ">seq_A\nACGTACGTACGTACGTACGTACGT\n>seq_B\nACGTACGTACGTACGTTCGTACGT\n>seq_C\nACGTACGACCGTACGTTCGTACGA\n>seq_D\nTCGTTCGACCGTACGTTCGTTCGA\n",
+    buttonClass: "pl-btn pl-btn-lav pl-btn-sm",
   },
-  protein: {
+  {
+    key: "protein",
     label: "Demo C: Protein analysis (2 seq)",
     desc: "2 proteins -> MW, GRAVY, alignment differences",
-    fasta: ">protein_ref\nMKTAYIAKQRQISFVKSHFSRQDILDLWIYHTQGYFP\n>protein_alt\nMKTAYIAKQRQISFVKSHFSRQDILDLWIYHTQGYFA\n"
-  }
-};
+    fasta: ">protein_ref\nMKTAYIAKQRQISFVKSHFSRQDILDLWIYHTQGYFP\n>protein_alt\nMKTAYIAKQRQISFVKSHFSRQDILDLWIYHTQGYFA\n",
+    buttonClass: "pl-btn pl-btn-coral pl-btn-sm",
+  },
+];
 
 export default function DemoDatasets({ onSelect }: { onSelect: (v: string) => void }) {
   return (
-    <div className="border rounded p-3 mb-3 bg-slate-50">
-      <p className="text-sm font-medium mb-1">1-Click Judge Demos</p>
-      <p className="text-xs text-slate-500 mb-2">Illustrative demo sequences for demonstrating features. Not for scientific inference. Click one, then click Analyze.</p>
-      <div className="flex gap-2 flex-wrap">
-        {Object.values(DATASETS).map(d => (
-          <button key={d.label} title={d.desc} onClick={() => onSelect(d.fasta)}
-            className="bg-white border px-3 py-2 rounded text-sm hover:border-teal-600">
-            {d.label}
+    <div className="pl-surface-2 p-3 mb-4">
+      <div className="flex gap-3 flex-wrap">
+        {DATASETS.map((d) => (
+          <button
+            key={d.key}
+            type="button"
+            title={d.desc}
+            aria-label={`${d.label}. ${d.desc}`}
+            onClick={() => onSelect(d.fasta)}
+            className={`${d.buttonClass} flex-col items-start gap-0.5 !h-auto py-3 text-left`}
+          >
+            <span className="block font-extrabold leading-tight">{d.label}</span>
+            <span className="block text-[11px] font-semibold leading-tight opacity-80">
+              {d.desc}
+            </span>
           </button>
         ))}
       </div>

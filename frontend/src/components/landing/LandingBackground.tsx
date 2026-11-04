@@ -21,7 +21,7 @@ export default function LandingBackground() {
   }));
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true" style={{ zIndex: 0 }}>
+    <div className="pl-global-bg fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true" style={{ zIndex: 0 }}>
       {mols.map((m, i) => (
         <div key={i} className="pl-mol" style={{
           left: `${m.left}%`, top: `${m.top}%`, width: m.size,

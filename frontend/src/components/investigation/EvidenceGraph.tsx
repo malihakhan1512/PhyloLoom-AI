@@ -147,7 +147,7 @@ export default function EvidenceGraph({ graph }: { graph: EvidenceGraphData }) {
         <span className="pl-ink-faint">
           Green solid = supports · Red dashed = contradicts · Grey curved = derived_from / other
         </span>
-        <button onClick={downloadJson} className="ml-auto border px-2 py-1 rounded min-h-[36px]">
+        <button onClick={downloadJson} className="pl-btn pl-btn-ghost pl-btn-sm ml-auto">
           Download graph JSON
         </button>
       </div>
@@ -264,15 +264,12 @@ export default function EvidenceGraph({ graph }: { graph: EvidenceGraphData }) {
 
       <div className="flex flex-wrap gap-1 mt-2">
         {graph.nodes.map((n) => (
-          <button
-            key={n.id}
-            onClick={() => {
-              setSelectedNode(n);
+          <button title={n.label} key={n.id} onClick={() => { setSelectedNode(n);
               setSelectedEdge(null);
             }}
-            className="text-xs border px-2 py-1 rounded min-h-[36px]"
+            className="pl-btn pl-btn-teal pl-btn-sm pl-evidence-node-btn"
           >
-            {n.type}: {shortLabel(n.label, 34)}
+            {n.type} · {n.classification}
           </button>
         ))}
       </div>
@@ -286,7 +283,6 @@ export default function EvidenceGraph({ graph }: { graph: EvidenceGraphData }) {
               <p className="text-xs mt-1">
                 Classification: <strong>{selectedNode.classification}</strong> · ID: <code>{selectedNode.id}</code>
               </p>
-              <p className="mt-2">{selectedNode.label}</p>
 
               {selectedNode.data && Object.keys(selectedNode.data).length > 0 && (
                 <pre className="mt-2 text-xs bg-white border rounded p-2 overflow-auto max-h-56">

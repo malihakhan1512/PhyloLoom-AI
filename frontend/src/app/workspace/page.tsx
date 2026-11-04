@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import PhyloTree from "@/components/PhyloTree";
 import ProteinViewer from "@/components/ProteinViewer";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import SiteHeader from "@/components/ui/SiteHeader";
 import LoadingState from "@/components/ui/LoadingState";
 import EmptyState from "@/components/ui/EmptyState";
 
@@ -45,6 +46,7 @@ export default function Home() {
   };
 
   const [aiResponse, setAiResponse] = useState<AiResponse | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const [providerHealth, setProviderHealth] = useState<ProviderHealth | null>(null);
   const [providerChecked, setProviderChecked] = useState(false);
 
@@ -79,6 +81,7 @@ export default function Home() {
 
   async function explain() {
     if (!result) return;
+    setAiLoading(true);
     try {
       const r = await fetch(`${API}/api/explain`, {
         method: "POST",
@@ -87,8 +90,10 @@ export default function Home() {
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.detail || "AI explanation failed");
+      setAiLoading(false);
       setAiResponse(data);
     } catch (e: any) {
+      setAiLoading(false);
       setAiResponse({
         provider: "unavailable",
         is_mock: true,
@@ -104,36 +109,20 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen font-sans" style={{ background: "var(--bg)", color: "var(--ink)" }}>
-      <header className="border-b px-6 py-4 flex justify-between items-center">
-        <div><h1 className="text-2xl font-bold text-teal-700">PhyloLoom AI</h1>
-          <p className="text-sm text-slate-500">Computational Genomics &amp; Evolutionary Analysis Workspace</p></div>
-        <div className="flex items-center gap-3 flex-wrap"><ThemeToggle /><a href="/investigate" className="text-sm text-teal-700 underline">Investigation</a><a href="/methods" className="text-sm text-teal-700 underline">Methods &amp; Limitations</a>{!providerChecked ? (
-          <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">AI: checking...</span>
-        ) : !providerHealth ? (
-          <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">AI: status unavailable</span>
-        ) : providerHealth.is_mock ? (
-          <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">AI: MOCK provider</span>
-        ) : (
-          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-            AI: Meta — {providerHealth.model || providerHealth.ai_provider}
-          </span>
-        )}</div>
-      </header>
+    <main className="min-h-screen font-sans" style={{ background: "transparent", color: "var(--ink)" }}>
+      <SiteHeader subtitle="Computational Genomics & Evolutionary Analysis Workspace" />
 
       <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-6">
         <section id="sequence-explorer" className="pl-surface p-4">
           <h2 className="font-semibold mb-1">Sequence Explorer</h2>
           <p className="text-sm text-slate-500 mb-3">Paste FASTA (DNA/RNA/protein). Max 50 sequences. Data is processed in memory, not stored. 2 sequences = variant comparison, 3+ = distance matrix + NJ tree.</p>
           <DemoDatasets onSelect={setInput} />
-          <label className="block border rounded px-3 py-2 text-sm cursor-pointer mb-2 w-fit">Upload FASTA file<input type="file" accept=".fasta,.fa,.faa,.fna,.txt" className="hidden" onChange={async e => { const f = e.target.files?.[0]; if (!f) return; if (f.size > 1000000) { setError("FASTA file too large (max 1 MB)."); return; } setInput(await f.text()); }} /></label>
+          <label className="pl-btn pl-btn-coral pl-btn-sm pl-upload-space cursor-pointer">Upload FASTA file<input type="file" accept=".fasta,.fa,.faa,.fna,.txt" className="hidden" onChange={async e => { const f = e.target.files?.[0]; if (!f) return; if (f.size > 1000000) { setError("FASTA file too large (max 1 MB)."); return; } setInput(await f.text()); }} /></label>
           <textarea value={input} onChange={e => setInput(e.target.value)} rows={10}
             className="w-full border rounded p-2 font-mono text-sm" spellCheck={false} />
           <div className="flex gap-2 mt-3 flex-wrap">
-            <button onClick={analyze} disabled={loading} className="bg-teal-600 text-white px-4 py-2 rounded disabled:opacity-50">
+            <button onClick={analyze} disabled={loading} className="pl-btn pl-btn-teal">
               {loading ? "Computing…" : "Analyze"}</button>
-            <button onClick={() => setInput(SAMPLE2)} className="border px-3 py-2 rounded">Demo: 2 sequences</button>
-            <button onClick={() => setInput(SAMPLE3)} className="border px-3 py-2 rounded">Demo: 3 sequences (tree)</button>
           </div>
           {error && <p className="mt-3 text-red-600 text-sm bg-red-50 p-2 rounded">{error}</p>}
           <LoadingState
@@ -194,10 +183,11 @@ export default function Home() {
           )}
           {result && (
             <div className="flex gap-2 flex-wrap">
-              <button onClick={download} className="border px-3 py-2 rounded text-sm">Download JSON</button>
-              <button onClick={explain} className="border px-3 py-2 rounded text-sm">Ask AI Copilot</button>
+              <button onClick={download} className="pl-btn pl-btn-ghost pl-btn-sm">Download JSON</button>
+              <button onClick={explain} className="pl-btn pl-btn-ghost pl-btn-sm">Ask AI Copilot</button>
             </div>
           )}
+          <LoadingState active={aiLoading} status="Asking Muse Spark to explain the computed results" steps={["Sending structured computed results (no raw sequences by default)", "Waiting for provider response"]} />
           {aiResponse && (
             <div className="mt-3 text-sm bg-amber-50 border border-amber-200 p-3 rounded">
               <span className={`text-xs px-2 py-0.5 rounded ${aiResponse.is_mock ? "bg-amber-100 text-amber-800" : "bg-green-100 text-green-800"}`}>

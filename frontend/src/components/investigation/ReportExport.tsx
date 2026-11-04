@@ -73,10 +73,10 @@ export default function ReportExport({ sections }: { sections: Record<string, un
       </p>
 
       <div className="flex gap-2 mt-3">
-        <button onClick={downloadJson} disabled={busy} className="bg-teal-600 text-white px-4 py-2 rounded disabled:opacity-50">
+        <button onClick={downloadJson} disabled={busy} className="pl-btn pl-btn-teal">
           {busy ? "Preparing..." : "Download Report JSON"}
         </button>
-        <button onClick={downloadHtml} disabled={busy} className="border px-4 py-2 rounded disabled:opacity-50">
+        <button onClick={downloadHtml} disabled={busy} className="pl-btn pl-btn-lav">
           Download HTML Report
         </button>
       </div>

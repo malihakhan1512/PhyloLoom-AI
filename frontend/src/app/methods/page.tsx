@@ -1,22 +1,10 @@
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import SiteHeader from "@/components/ui/SiteHeader";
 import SectionLabel from "@/components/ui/SectionLabel";
 export default function Methods() {
   return (
-    <main className="min-h-screen font-sans" style={{ background: "var(--bg)", color: "var(--ink)" }}>
-      <header
-        className="px-6 py-4 flex flex-wrap gap-3 justify-between items-center"
-        style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}
-      >
-        <div>
-          <a href="/" className="text-2xl font-black tracking-tight" style={{ color: "var(--accent)" }}>PhyloLoom AI</a>
-          <p className="text-sm pl-ink-soft">Methods, Assumptions &amp; Limitations</p>
-        </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <a href="/workspace" className="inline-flex items-center min-h-[44px] text-sm underline" style={{ color: "var(--accent)" }}>Workspace</a>
-          <a href="/investigate" className="inline-flex items-center min-h-[44px] text-sm underline" style={{ color: "var(--accent)" }}>Investigation</a>
-          <ThemeToggle />
-        </div>
-      </header>
+    <main className="min-h-screen font-sans" style={{ background: "transparent", color: "var(--ink)" }}>
+      <SiteHeader subtitle="Methods, Assumptions & Limitations" />
       <div className="max-w-3xl mx-auto p-6 space-y-6 text-[15px] leading-relaxed pl-enter">
         <section><SectionLabel>Scope</SectionLabel>
         <h2 className="font-semibold text-lg mt-1">What this tool is — and is not</h2>

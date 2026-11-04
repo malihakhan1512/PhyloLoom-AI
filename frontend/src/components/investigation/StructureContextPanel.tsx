@@ -103,7 +103,7 @@ export default function StructureContextPanel() {
             <option value={5.0}>5.0</option>
           </select>
         </label>
-        <button onClick={run} disabled={loading} className="bg-teal-600 text-white px-4 py-2 rounded disabled:opacity-50">
+        <button onClick={run} disabled={loading} className="pl-btn pl-btn-teal">
           {loading ? "Computing..." : "Compute Contacts"}
         </button>
       </div>
@@ -144,7 +144,7 @@ export default function StructureContextPanel() {
             <p className="text-sm mt-2">No contacts within {result.cutoff_a} Å. This is a computed result, not missing data.</p>
           )}
 
-          <button onClick={downloadCsv} className="border px-2 py-1 rounded text-xs mt-3">Download contacts CSV</button>
+          <button onClick={downloadCsv} className="pl-btn pl-btn-ghost pl-btn-sm">Download contacts CSV</button>
 
           <div className="text-sm border rounded p-3 mt-3">
             <p>Secondary structure: <strong>unavailable</strong> — DSSP not verified</p>
