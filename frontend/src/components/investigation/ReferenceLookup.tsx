@@ -2,6 +2,7 @@
 import { useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+import LoadingState from "@/components/ui/LoadingState";
 
 type UniprotResult = {
   status: "available" | "unavailable";
@@ -89,6 +90,8 @@ export default function ReferenceLookup() {
           {loading ? "Retrieving..." : "Retrieve Reference"}
         </button>
       </div>
+
+      <LoadingState active={loading} status="Fetching UniProt record" />
 
       {error && (
         <p className="mt-3 text-red-600 text-sm bg-red-50 p-3 rounded">

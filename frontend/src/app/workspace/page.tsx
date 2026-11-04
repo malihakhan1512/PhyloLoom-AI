@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import PhyloTree from "@/components/PhyloTree";
 import ProteinViewer from "@/components/ProteinViewer";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import LoadingState from "@/components/ui/LoadingState";
+import EmptyState from "@/components/ui/EmptyState";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 const SAMPLE2 = ">ref\nACGTACGTACGT\n>alt\nACGTTCGTACGT\n";
@@ -134,11 +136,21 @@ export default function Home() {
             <button onClick={() => setInput(SAMPLE3)} className="border px-3 py-2 rounded">Demo: 3 sequences (tree)</button>
           </div>
           {error && <p className="mt-3 text-red-600 text-sm bg-red-50 p-2 rounded">{error}</p>}
+          <LoadingState
+            active={loading}
+            status="Analyzing sequences"
+            steps={["Validating FASTA", "Computing sequence statistics", "Comparing sequences or building tree"]}
+          />
         </section>
 
         <section className="pl-surface p-4 overflow-auto max-h-[80vh]">
           <h2 className="font-semibold mb-3">Results {result && <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded ml-2">computed live</span>}</h2>
-          {!result && <p className="text-sm text-slate-400">Run an analysis to see computed statistics, composition, variants and phylogeny.</p>}
+          {!result && (
+            <EmptyState
+              title="No analysis yet"
+              description="Paste or upload FASTA in the Sequence Explorer, then click Analyze. Computed statistics, variants, and an exploratory tree will appear here."
+            />
+          )}
           {result?.sequences.map(s => (
             <div key={s.id} className="mb-4 border-b pb-3">
               <p className="font-mono font-semibold">{s.id} <span className="text-slate-400 font-normal">({s.validation.type}, {s.stats.length} residues)</span></p>

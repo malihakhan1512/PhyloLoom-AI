@@ -2,6 +2,7 @@
 import { useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+import LoadingState from "@/components/ui/LoadingState";
 
 export type AgentFinding = { id: string; classification: string; summary: string; caveats?: string[] };
 
@@ -86,6 +87,7 @@ export default function HypothesisAgentPanel({
       {findings.length === 0 && <p className="text-xs text-amber-700 mt-2">No findings available yet — run an investigation first.</p>}
 
       {error && <p className="mt-3 text-red-600 text-sm bg-red-50 p-3 rounded">{error}</p>}
+      <LoadingState active={loading} status="Asking Muse Spark for cited hypotheses" steps={["Sending EvidenceBundle (no raw sequences)", "Validating citations server-side"]} />
 
       {result && (
         <div className="mt-4 space-y-3">

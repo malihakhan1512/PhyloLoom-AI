@@ -2,6 +2,7 @@
 import { useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+import LoadingState from "@/components/ui/LoadingState";
 
 type Contact = {
   chain: string;
@@ -113,6 +114,7 @@ export default function StructureContextPanel() {
       </p>
 
       {error && <p className="mt-3 text-red-600 text-sm bg-red-50 p-3 rounded">{error}</p>}
+      <LoadingState active={loading} status="Computing heavy-atom contacts" steps={["Explicit chain mapping", "Neighbor search at selected cutoff"]} />
 
       {result && (
         <div className="mt-4">

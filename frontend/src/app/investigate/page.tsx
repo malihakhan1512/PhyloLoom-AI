@@ -14,6 +14,8 @@ import HypothesisAgentPanel, { AgentFinding } from "@/components/investigation/H
 import EvidenceBadge from "@/components/ui/EvidenceBadge";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import SectionLabel from "@/components/ui/SectionLabel";
+import LoadingState from "@/components/ui/LoadingState";
+import EmptyState from "@/components/ui/EmptyState";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 type DemoResponse = {
@@ -285,7 +287,7 @@ export default function InvestigatePage() {
         </div>
 
         {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded">{error}</p>}
-        {!data && !error && <p className="text-sm text-slate-400">Loading investigation…</p>}
+        {!data && !error && <LoadingState active status="Loading HBB demo investigation" steps={["Fetching demo evidence graph", "Computing descriptor deltas"]} />}
 
         {data && (
           <>
@@ -391,6 +393,7 @@ export default function InvestigatePage() {
           </button>
 
           {liveError && <p className="mt-3 text-red-600 text-sm bg-red-50 p-3 rounded">{liveError}</p>}
+          <LoadingState active={liveLoading} status="Aligning sequences and computing descriptor evidence" steps={["Needleman-Wunsch alignment", "Descriptor deltas", "19-way counterfactuals"]} />
 
           {liveResult && (
             <div className="mt-5 space-y-5">
@@ -515,6 +518,10 @@ export default function InvestigatePage() {
           </button>
 
           {evoError && <p className="mt-3 text-red-600 text-sm bg-red-50 p-3 rounded">{evoError}</p>}
+          <LoadingState active={evoLoading} status="Computing conservation and entropy" steps={["Column frequencies", "Shannon entropy (bits)", "Henikoff weights"]} />
+          {!evoResult && !evoLoading && !evoError && (
+            <EmptyState title="No evolutionary analysis yet" description="Paste at least 3 aligned homologous sequences above and run the analysis. Demo input is prefilled and labelled." />
+          )}
 
           {evoResult && evoResult.columns && (
             <div className="mt-5 space-y-5">

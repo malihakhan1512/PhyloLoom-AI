@@ -327,3 +327,28 @@ body{background:var(--bg);color:var(--ink)}
 @media (min-width:768px){ .pl-page-x{ padding-left:1.5rem; padding-right:1.5rem; } }
 .pl-touch{ min-height:44px; min-width:44px; }
 .pl-break{ overflow-wrap:anywhere; word-break:break-word; }
+
+/* ---------- P4: DNA loading mascot (loading/empty states only) ---------- */
+.pl-mascot{ overflow:visible; }
+.pl-mascot-twist{
+  transform-box:fill-box; transform-origin:center;
+  animation:plMascotBob 2.8s ease-in-out infinite;
+}
+@keyframes plMascotBob{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-4px) rotate(2deg)}
+}
+.pl-mascot-eye{
+  transform-box:fill-box; transform-origin:center;
+  animation:plMascotBlink 5.7s infinite;
+}
+@keyframes plMascotBlink{
+  0%,87%,100%{transform:scaleY(1)}
+  90%{transform:scaleY(.08)}
+  93%{transform:scaleY(1)}
+  96%{transform:scaleY(.08)}
+  98%{transform:scaleY(1)}
+}
+@media (prefers-reduced-motion: reduce){
+  .pl-mascot-twist,.pl-mascot-eye{ animation:none!important; transform:none!important; }
+}
