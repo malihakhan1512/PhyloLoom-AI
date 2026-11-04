@@ -313,3 +313,17 @@ body{background:var(--bg);color:var(--ink)}
 }
 /* Crew quotes/names sit on the dark card — keep them light */
 .pl-crew-card{ color:var(--land-ink); }
+
+/* ---------- P3: mount-once entrance (headers/sections) ---------- */
+.pl-enter{
+  animation:plRise var(--dur-hero) var(--ease-out) both;
+}
+.pl-enter-1{ animation:plRise var(--dur-hero) var(--ease-out) both; animation-delay:40ms; }
+.pl-enter-2{ animation:plRise var(--dur-hero) var(--ease-out) both; animation-delay:80ms; }
+.pl-enter-3{ animation:plRise var(--dur-hero) var(--ease-out) both; animation-delay:120ms; }
+
+/* ---------- P3: responsive safety ---------- */
+.pl-page-x{ padding-left:1rem; padding-right:1rem; }
+@media (min-width:768px){ .pl-page-x{ padding-left:1.5rem; padding-right:1.5rem; } }
+.pl-touch{ min-height:44px; min-width:44px; }
+.pl-break{ overflow-wrap:anywhere; word-break:break-word; }

@@ -13,6 +13,7 @@ import ReportExport from "@/components/investigation/ReportExport";
 import HypothesisAgentPanel, { AgentFinding } from "@/components/investigation/HypothesisAgentPanel";
 import EvidenceBadge from "@/components/ui/EvidenceBadge";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import SectionLabel from "@/components/ui/SectionLabel";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 type DemoResponse = {
@@ -247,7 +248,7 @@ export default function InvestigatePage() {
   return (
     <main className="min-h-screen font-sans" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <header
-        className="px-6 py-4 flex flex-wrap gap-3 justify-between items-center"
+        className="px-6 py-4 flex flex-wrap gap-3 justify-between items-center pl-enter"
         style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}
       >
         <div>
@@ -289,6 +290,7 @@ export default function InvestigatePage() {
         {data && (
           <>
             <section id="mutation-detective-demo" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-demo)" }}>
+              <SectionLabel accent="var(--accent-demo)">Demo Showcase</SectionLabel>
               <h2 className="font-semibold text-lg">Mutation Detective — {data.gene} {data.variant.mature_chain}</h2>
               <p className="text-sm mt-1">
                 Accession: <code>{data.accession}</code> · Mature chain: <strong>{data.variant.mature_chain}</strong> ·
@@ -303,6 +305,7 @@ export default function InvestigatePage() {
             </section>
 
             <section className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
+              <SectionLabel accent="var(--accent-live)">Computed Evidence</SectionLabel>
               <h2 className="font-semibold">Physicochemical Evidence <EvidenceBadge kind="COMPUTED" /></h2>
               <table className="text-sm mt-3 w-full max-w-xl pl-table-nums">
                 <tbody>
@@ -322,11 +325,13 @@ export default function InvestigatePage() {
             </section>
 
             <section id="evidence-graph" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
+              <SectionLabel accent="var(--accent-live)">Traceability</SectionLabel>
               <h2 className="font-semibold mb-3">Evidence Graph — click any conclusion to trace it</h2>
               <EvidenceGraph graph={data.graph} />
             </section>
 
             <section className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-agent)" }}>
+              <SectionLabel accent="var(--accent-agent)">Hypotheses</SectionLabel>
               <h2 className="font-semibold mb-1">Hypothesis Board — HBB Demo</h2>
               <p className="text-sm text-slate-500 mb-3">
                 Approved-template hypotheses generated from demo evidence. They are untested,
@@ -341,6 +346,7 @@ export default function InvestigatePage() {
             It must remain usable even if the demo endpoint fails. */}
         <section id="mutation-detective" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
           <div className="flex flex-wrap items-center gap-2">
+            <SectionLabel accent="var(--accent-live)">Live Analysis</SectionLabel>
             <h2 className="font-semibold text-lg">Live Mutation Detective</h2>
             <EvidenceBadge kind="COMPUTED" text="LIVE COMPUTED" />
             <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">Not demo data</span>
@@ -482,6 +488,7 @@ export default function InvestigatePage() {
         </section>
         <section id="evolution" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-evolution)" }}>
           <div className="flex flex-wrap items-center gap-2">
+            <SectionLabel accent="var(--accent-evolution)">Evolution</SectionLabel>
             <h2 className="font-semibold text-lg">Evolutionary Anomaly Detector</h2>
             <EvidenceBadge kind="COMPUTED" />
           </div>
@@ -566,6 +573,7 @@ export default function InvestigatePage() {
         </section>
         <section id="reference-lookup" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-structure)" }}>
           <div className="flex flex-wrap items-center gap-2">
+            <SectionLabel accent="var(--accent-structure)">Reference &amp; Structure</SectionLabel>
             <h2 className="font-semibold text-lg">UniProt Reference Record</h2>
             <EvidenceBadge kind="CURATED_ASSERTION" />
             <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">
@@ -583,6 +591,7 @@ export default function InvestigatePage() {
         </section>
         <section id="structure-context" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-structure)" }}>
           <div className="flex flex-wrap items-center gap-2">
+            <SectionLabel accent="var(--accent-structure)">Reference &amp; Structure</SectionLabel>
             <h2 className="font-semibold text-lg">Structure Context</h2>
             <EvidenceBadge kind="COMPUTED" />
             <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">Explicit chain mapping required</span>
@@ -596,6 +605,7 @@ export default function InvestigatePage() {
         </section>
         <section id="hypothesis-generator" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-agent)" }}>
           <div className="flex flex-wrap items-center gap-2">
+            <SectionLabel accent="var(--accent-agent)">Hypotheses</SectionLabel>
             <h2 className="font-semibold text-lg">Scientific Hypothesis Generator</h2>
             <EvidenceBadge kind="MODEL_PREDICTION" text="Muse Spark when configured" />
             <EvidenceBadge kind="HYPOTHESIS" />
@@ -610,6 +620,7 @@ export default function InvestigatePage() {
         </section>
         <section id="export" className="pl-surface p-4" style={{ borderTop: "3px solid var(--accent-live)" }}>
           <div className="flex flex-wrap items-center gap-2">
+            <SectionLabel accent="var(--accent-live)">Export</SectionLabel>
             <h2 className="font-semibold text-lg">Reproducible Investigation Export</h2>
             <EvidenceBadge kind="COMPUTED" text="EXPORT" />
           </div>

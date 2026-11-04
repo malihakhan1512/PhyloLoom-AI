@@ -120,7 +120,7 @@ export default function Home() {
       </header>
 
       <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-6">
-        <section className="border rounded-xl p-4">
+        <section id="sequence-explorer" className="pl-surface p-4">
           <h2 className="font-semibold mb-1">Sequence Explorer</h2>
           <p className="text-sm text-slate-500 mb-3">Paste FASTA (DNA/RNA/protein). Max 50 sequences. Data is processed in memory, not stored. 2 sequences = variant comparison, 3+ = distance matrix + NJ tree.</p>
           <DemoDatasets onSelect={setInput} />
@@ -136,7 +136,7 @@ export default function Home() {
           {error && <p className="mt-3 text-red-600 text-sm bg-red-50 p-2 rounded">{error}</p>}
         </section>
 
-        <section className="border rounded-xl p-4 overflow-auto max-h-[80vh]">
+        <section className="pl-surface p-4 overflow-auto max-h-[80vh]">
           <h2 className="font-semibold mb-3">Results {result && <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded ml-2">computed live</span>}</h2>
           {!result && <p className="text-sm text-slate-400">Run an analysis to see computed statistics, composition, variants and phylogeny.</p>}
           {result?.sequences.map(s => (
@@ -160,7 +160,7 @@ export default function Home() {
             <div className="mb-4">
               <h3 className="font-semibold">Variant Explorer — identity {result.comparison.identity_percent}%</h3>
               {result.comparison.variants.length === 0 ? <p className="text-sm">No differences found.</p> :
-                <table className="w-full text-sm mt-2"><thead><tr className="text-left border-b"><th>Pos</th><th>Type</th><th>Ref</th><th>Alt</th></tr></thead>
+                <table className="w-full text-sm mt-2 pl-table-nums"><thead><tr className="text-left border-b"><th>Pos</th><th>Type</th><th>Ref</th><th>Alt</th></tr></thead>
                   <tbody>{result.comparison.variants.map((v, i) => (
                     <tr key={i} className="border-b font-mono"><td>{v.ref_pos}</td><td>{v.type}</td><td>{v.ref ?? "—"}</td><td>{v.alt ?? "—"}</td></tr>))}
                   </tbody></table>}
