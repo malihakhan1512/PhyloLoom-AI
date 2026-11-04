@@ -13,6 +13,7 @@ from .investigation.graph import validate_graph
 from .investigation.descriptors import descriptor_delta
 from .investigation.mutation import investigate_pair
 from .investigation.counterfactual import enumerate_counterfactuals
+from .investigation.hypothesis import build_hypothesis_cards
 
 app = FastAPI(title="PhyloLoom AI", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_methods=["*"], allow_headers=["*"])
@@ -43,6 +44,11 @@ class MutationInvestigationIn(BaseModel):
 
 class CounterfactualIn(BaseModel):
     ref_aa: str
+
+class HypothesisIn(BaseModel):
+    variant_label: str
+    descriptor_delta: dict
+    citation_ids: list[str]
 
 @app.get("/health")
 def health():
@@ -122,3 +128,50 @@ def investigation_counterfactual(body: CounterfactualIn):
         return enumerate_counterfactuals(body.ref_aa)
     except ValueError as e:
         raise HTTPException(422, str(e))
+
+@app.post("/api/investigation/hypotheses")
+def investigation_hypotheses(body: HypothesisIn):
+    delta = body.descriptor_delta.get("delta", body.descriptor_delta)
+    try:
+        cards = build_hypothesis_cards(
+            variant_label=body.variant_label,
+            delta=delta,
+            citation_ids=body.citation_ids,
+        )
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+    return {
+        "classification": "HYPOTHESIS",
+        "status": "untested",
+        "cards": cards,
+        "note": (
+            "These are falsifiable hypotheses generated from approved templates. "
+            "They are not findings, clinical interpretations, or executed tests."
+        ),
+    }
+
+
+@app.get("/api/investigation/demo/hbb/hypotheses")
+def investigation_demo_hbb_hypotheses():
+    cards = build_hypothesis_cards(
+        variant_label="Glu6Val (mature chain) = Glu7Val (precursor)",
+        delta={
+            "hydropathy_kd": 7.7,
+            "polarity_grantham": -6.4,
+            "volume_a3": 1.6,
+            "charge_ph7": 1,
+        },
+        citation_ids=["evidence:descriptor:E6V"],
+    )
+    return {
+        "demo": True,
+        "demo_label": "DEMO hypotheses - generated from the labelled HBB demo evidence",
+        "classification": "HYPOTHESIS",
+        "status": "untested",
+        "cards": cards,
+        "note": (
+            "These are falsifiable hypotheses generated from approved templates. "
+            "They are not findings, clinical interpretations, or executed tests."
+        ),
+    }    
