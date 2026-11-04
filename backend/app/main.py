@@ -20,6 +20,7 @@ from .investigation.structure import analyze_structure_context, StructureMapping
 from .investigation.provenance import canonical_sha256, utc_now_iso
 from fastapi.responses import HTMLResponse
 from .investigation.report import build_report_bundle, render_html_report
+from .investigation.agent import EvidenceBundle, run_hypothesis_agent
 app = FastAPI(title="PhyloLoom AI", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_methods=["*"], allow_headers=["*"])
 def _make_provider():
@@ -67,6 +68,8 @@ class StructureContextIn(BaseModel):
 class ReportIn(BaseModel):
     title: str = "PhyloLoom Investigation Report"
     sections: dict
+class HypothesisAgentIn(BaseModel):
+    bundle: EvidenceBundle
 
 @app.get("/health")
 def health():
@@ -265,4 +268,14 @@ def investigation_report_html(body: ReportIn):
         raise HTTPException(422, str(e))
     return render_html_report(bundle)
 
-    
+@app.post("/api/investigation/agent/hypotheses")
+def investigation_agent_hypotheses(body: HypothesisAgentIn):
+    try:
+        return run_hypothesis_agent(body.bundle, ai)
+    except Exception as e:
+        return {
+            "status": "unavailable",
+            "reason": f"Hypothesis agent failed: {type(e).__name__}. Deterministic analyses and the template Hypothesis Board are unaffected.",
+            "classification": "HYPOTHESIS",
+            "is_mock": True,
+        }    

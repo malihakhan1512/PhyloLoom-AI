@@ -10,6 +10,7 @@ import PhyloTree from "@/components/PhyloTree";
 import StructureContextPanel from "@/components/investigation/StructureContextPanel";
 import ReferenceLookup from "@/components/investigation/ReferenceLookup";
 import ReportExport from "@/components/investigation/ReportExport";
+import HypothesisAgentPanel, { AgentFinding } from "@/components/investigation/HypothesisAgentPanel";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 type DemoResponse = {
@@ -92,6 +93,7 @@ export default function InvestigatePage() {
   const [evoError, setEvoError] = useState("");
   const [evoLoading, setEvoLoading] = useState(false);
   const [evoColumn, setEvoColumn] = useState<number | null>(null);
+  const [agentResult, setAgentResult] = useState<unknown>(null);
 
   async function loadDemoHypotheses() {
     try {
@@ -210,7 +212,35 @@ export default function InvestigatePage() {
       positive_selection: "unavailable — never inferred from variability alone",
       clinical_interpretation: "unavailable — PhyloLoom does not classify variants clinically",
     },
+    ai_hypothesis_proposal: agentResult ?? { status: "unavailable", reason: "AI hypothesis proposal not generated" },
   };
+  const agentFindings: AgentFinding[] = [];
+  if (data) {
+    agentFindings.push({
+      id: "evidence:descriptor:E6V",
+      classification: "COMPUTED",
+      summary: `HBB demo E->V descriptor delta: hydropathy +7.7, polarity -6.4, volume +1.6 A^3, charge +1 (mature chain 6 = precursor 7)`,
+      caveats: ["DEMO dataset", "Descriptor differences only — not pathogenicity, stability, or fitness"],
+    });
+  }
+  if (liveResult?.primary_substitution && liveResult.descriptor_delta) {
+    const v = liveResult.primary_substitution;
+    const d = liveResult.descriptor_delta.delta;
+    agentFindings.push({
+      id: "evidence:live:descriptor",
+      classification: "COMPUTED",
+      summary: `Live variant ${v.ref}${v.ref_pos}${v.alt}: hydropathy ${d.hydropathy_kd}, polarity ${d.polarity_grantham}, volume ${d.volume_a3} A^3, charge ${d.charge_ph7} (submitted-sequence numbering)`,
+      caveats: ["Submitted-sequence coordinates only", "Not a clinical interpretation"],
+    });
+  }
+  if (evoResult?.summary) {
+    agentFindings.push({
+      id: "evidence:evolution:summary",
+      classification: evoResult.classification,
+      summary: `Evolution: ${evoResult.sequence_count} sequences, effective count ${evoResult.effective_sequence_count}, ${evoResult.summary.candidate_recurrent_count} candidate recurrent substitutions, low-occupancy columns: ${evoResult.summary.flagged_low_occupancy_columns.join(", ") || "none"}`,
+      caveats: ["Candidate homoplasy is descriptive only", "No positive-selection inference"],
+    });
+  }
 
   return (
     <main className="min-h-screen bg-white text-slate-900 font-sans">
@@ -542,6 +572,20 @@ export default function InvestigatePage() {
             Protein Explorer on the home page — this panel computes the contact evidence behind it.
           </p>
           <StructureContextPanel />
+        </section>
+        <section className="border-2 border-violet-300 rounded-xl p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-semibold text-lg">Scientific Hypothesis Generator</h2>
+            <span className="text-xs bg-violet-100 text-violet-800 px-2 py-1 rounded">Muse Spark when configured</span>
+            <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">HYPOTHESIS</span>
+          </div>
+          <div className="mt-3">
+            <HypothesisAgentPanel
+              findings={agentFindings}
+              context="PhyloLoom investigation page. Research support only, not clinical."
+              onResult={setAgentResult}
+            />
+          </div>
         </section>
         <section className="border-2 border-teal-300 rounded-xl p-4">
           <div className="flex flex-wrap items-center gap-2">

@@ -2,6 +2,7 @@ import json
 import os
 from openai import OpenAI
 from .base import AIProvider
+from ..investigation.agent import build_agent_prompt, EvidenceBundle
 
 
 class NotConfiguredError(RuntimeError):
@@ -49,6 +50,29 @@ class MetaAIProvider(AIProvider):
             max_retries=1,
         )
 
+    def propose_hypotheses_json(self, bundle: dict) -> dict:
+        bundle_obj = EvidenceBundle(**bundle)
+        prompt = f"""{build_agent_prompt(bundle_obj)}
+
+Send only the compact EvidenceBundle above. It contains no raw sequences."""
+        response = self.client.responses.create(
+            model=self.model_id,
+            input=prompt,
+        )
+        text = (response.output_text or "").strip()
+        if not text:
+            raise RuntimeError("Meta API returned empty hypothesis output")
+
+        usage = None
+        raw_usage = getattr(response, "usage", None)
+        if raw_usage is not None:
+            try:
+                usage = raw_usage.model_dump(mode="json")
+            except Exception:
+                usage = str(raw_usage)
+
+        return {"text": text, "model": self.model_id, "usage": usage}
+    
     def explain_analysis(self, results: dict, question: str) -> dict:
         safe_results = _sanitize(results)
         payload = json.dumps(safe_results, indent=2)[:8000]
