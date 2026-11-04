@@ -14,6 +14,7 @@ from .investigation.descriptors import descriptor_delta
 from .investigation.mutation import investigate_pair
 from .investigation.counterfactual import enumerate_counterfactuals
 from .investigation.hypothesis import build_hypothesis_cards
+from .investigation.evolution import analyze_evolution, DEMO_EVOLUTION_FASTA
 
 app = FastAPI(title="PhyloLoom AI", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_methods=["*"], allow_headers=["*"])
@@ -49,6 +50,10 @@ class HypothesisIn(BaseModel):
     variant_label: str
     descriptor_delta: dict
     citation_ids: list[str]
+
+class EvolutionIn(BaseModel):
+    fasta_text: str
+    gap_flag_threshold: float = 0.5
 
 @app.get("/health")
 def health():
@@ -175,3 +180,17 @@ def investigation_demo_hbb_hypotheses():
             "They are not findings, clinical interpretations, or executed tests."
         ),
     }    
+
+@app.post("/api/investigation/evolution")
+def investigation_evolution(body: EvolutionIn):
+    try:
+        return analyze_evolution(body.fasta_text, gap_threshold=body.gap_flag_threshold)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+
+@app.get("/api/investigation/demo/evolution")
+def investigation_demo_evolution():
+    result = analyze_evolution(DEMO_EVOLUTION_FASTA, demo=True)
+    result["demo_label"] = "DEMO alignment - labelled demonstration data, not a user analysis"
+    return result

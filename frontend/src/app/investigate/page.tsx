@@ -4,7 +4,9 @@ import EvidenceGraph, { EvidenceGraphData } from "@/components/investigation/Evi
 import ResidueStrip from "@/components/investigation/ResidueStrip";
 import CounterfactualMatrix, { CounterfactualRow } from "@/components/investigation/CounterfactualMatrix";
 import HypothesisBoard, { HypothesisCard } from "@/components/investigation/HypothesisBoard";
-
+import EntropyTrack, { ColumnStat } from "@/components/investigation/EntropyTrack";
+import ConservationHeatmap from "@/components/investigation/ConservationHeatmap";
+import PhyloTree from "@/components/PhyloTree";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 type DemoResponse = {
@@ -52,6 +54,21 @@ type LiveResult = {
   graph_errors: string[];
   unavailable: Record<string, string>;
 };
+type EvolutionResult = {
+  demo: boolean;
+  classification: string;
+  sequence_type: string;
+  sequence_count: number;
+  alignment_length: number;
+  alignment: { status: string; method?: string; reason?: string; mafft_version?: string | null };
+  sequences: { id: string; sequence: string }[];
+  effective_sequence_count: number;
+  columns: ColumnStat[] | null;
+  candidate_homoplasy: { position: number; consensus: string; residue: string; sequence_count: number; low_occupancy: boolean; label: string }[];
+  tree: { newick: string; method: string; branch_support_label: string } | null;
+  summary: { flagged_low_occupancy_columns: number[]; candidate_recurrent_count: number; note: string } | null;
+  unavailable: Record<string, string>;
+};
 
 export default function InvestigatePage() {
   const [data, setData] = useState<DemoResponse | null>(null);
@@ -64,6 +81,14 @@ export default function InvestigatePage() {
   const [demoHypotheses, setDemoHypotheses] = useState<HypothesisCard[]>([]);
   const [liveHypotheses, setLiveHypotheses] = useState<HypothesisCard[]>([]);
   const [liveHypothesisError, setLiveHypothesisError] = useState("");
+
+  const DEMO_EVO = ">demo_human\nMVHLTPEEKSAVTALWGKVN\n>demo_chimp\nMVHLTPEEKSAVTALWGKVN\n>demo_mouse\nMVHLTDAEKAAVNGLWGKVN\n>demo_rabbit\nMVHLSSDEKNAVHGLWGKVN\n>demo_zebrafish\nMVHLTADEKAAVTGLWSKVN\n";
+
+  const [evoInput, setEvoInput] = useState(DEMO_EVO);
+  const [evoResult, setEvoResult] = useState<EvolutionResult | null>(null);
+  const [evoError, setEvoError] = useState("");
+  const [evoLoading, setEvoLoading] = useState(false);
+  const [evoColumn, setEvoColumn] = useState<number | null>(null);
 
   async function loadDemoHypotheses() {
     try {
@@ -143,6 +168,25 @@ export default function InvestigatePage() {
     }
 
     setLiveLoading(false);
+  }
+  async function runEvolution() {
+    setEvoLoading(true);
+    setEvoError("");
+    setEvoResult(null);
+    setEvoColumn(null);
+    try {
+      const r = await fetch(`${API}/api/investigation/evolution`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fasta_text: evoInput, gap_flag_threshold: 0.5 }),
+      });
+      const body = await r.json();
+      if (!r.ok) throw new Error(body.detail || "Evolution analysis failed");
+      setEvoResult(body);
+    } catch (e: any) {
+      setEvoError(e.message || "Evolution analysis failed");
+    }
+    setEvoLoading(false);
   }
 
   return (
@@ -358,6 +402,90 @@ export default function InvestigatePage() {
                 <p>Clinical interpretation: <strong>unavailable</strong></p>
               </div>
             </div>
+          )}
+        </section>
+        <section className="border-2 border-sky-300 rounded-xl p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-semibold text-lg">Evolutionary Anomaly Detector</h2>
+            <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">COMPUTED</span>
+          </div>
+          <p className="text-sm text-slate-500 mt-1">
+            Paste 3+ aligned homologous sequences (equal length, gaps allowed), or unaligned sequences if MAFFT is
+            available on the server. Computes Shannon entropy, normalized conservation, gap fraction, Henikoff
+            effective sequence count, and candidate recurrent substitutions. Candidate homoplasy is a descriptive
+            flag — never proof of convergence or positive selection.
+          </p>
+
+          <textarea
+            value={evoInput}
+            onChange={(e) => setEvoInput(e.target.value)}
+            rows={8}
+            className="w-full border rounded p-2 font-mono text-sm mt-3"
+            spellCheck={false}
+          />
+          <button
+            onClick={runEvolution}
+            disabled={evoLoading}
+            className="bg-sky-600 text-white px-4 py-2 rounded mt-3 disabled:opacity-50"
+          >
+            {evoLoading ? "Analyzing..." : "Run Evolutionary Analysis"}
+          </button>
+
+          {evoError && <p className="mt-3 text-red-600 text-sm bg-red-50 p-3 rounded">{evoError}</p>}
+
+          {evoResult && evoResult.columns && (
+            <div className="mt-5 space-y-5">
+              <div className="border rounded p-3 bg-slate-50 text-sm">
+                <p>Sequences: {evoResult.sequence_count} ({evoResult.sequence_type}) · Alignment length: {evoResult.alignment_length} · Effective sequence count (Henikoff): {evoResult.effective_sequence_count}</p>
+                <p>Alignment: {evoResult.alignment.method}{evoResult.alignment.mafft_version ? ` (${evoResult.alignment.mafft_version})` : ""}</p>
+                <p>Low-occupancy columns: {evoResult.summary?.flagged_low_occupancy_columns.join(", ") || "none"}</p>
+                <p>Candidate recurrent substitutions: {evoResult.summary?.candidate_recurrent_count}</p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">Conservation Heatmap</h3>
+                <ConservationHeatmap sequences={evoResult.sequences} columns={evoResult.columns} selected={evoColumn} onSelect={setEvoColumn} />
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">Entropy Track</h3>
+                <EntropyTrack columns={evoResult.columns} maxEntropy={evoResult.sequence_type === "protein" ? 4.32 : 2} selected={evoColumn} onSelect={setEvoColumn} />
+              </div>
+
+              {evoResult.candidate_homoplasy.length > 0 && (
+                <div className="border rounded p-3">
+                  <h3 className="font-semibold">Candidate Recurrent Substitutions</h3>
+                  <ul className="list-disc pl-5 text-sm mt-2 space-y-1">
+                    {evoResult.candidate_homoplasy.map((c, i) => (
+                      <li key={i}>
+                        Position {c.position}: {c.residue} in {c.sequence_count} sequences (consensus {c.consensus})
+                        {c.low_occupancy ? " — low occupancy ⚠" : ""}. <span className="text-slate-500">{c.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {evoResult.tree && (
+                <div>
+                  <h3 className="font-semibold mb-2">Exploratory Tree <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">branch support: unavailable — bootstrap not computed</span></h3>
+                  <PhyloTree newick={evoResult.tree.newick} />
+                  <p className="text-xs text-slate-400">{evoResult.tree.method}</p>
+                </div>
+              )}
+
+              <div className="text-sm border rounded p-3">
+                <p>FastTree: <strong>unavailable</strong> — not yet verified in deployment image</p>
+                <p>Positive selection inference: <strong>unavailable</strong> — never inferred from variability alone</p>
+              </div>
+            </div>
+          )}
+
+          {evoResult && !evoResult.columns && (
+            <p className="mt-3 text-sm bg-amber-50 border border-amber-200 rounded p-3">
+              Alignment: unavailable — {evoResult.unavailable.alignment} Column statistics, heatmap, and tree are
+              unavailable rather than computed from an unaligned input.
+            </p>
           )}
         </section>
       </div>
