@@ -15,7 +15,11 @@ from .investigation.mutation import investigate_pair
 from .investigation.counterfactual import enumerate_counterfactuals
 from .investigation.hypothesis import build_hypothesis_cards
 from .investigation.evolution import analyze_evolution, DEMO_EVOLUTION_FASTA
-
+from .investigation.adapters.uniprot import fetch_uniprot_record, SourceUnavailable
+from .investigation.structure import analyze_structure_context, StructureMappingError
+from .investigation.provenance import canonical_sha256, utc_now_iso
+from fastapi.responses import HTMLResponse
+from .investigation.report import build_report_bundle, render_html_report
 app = FastAPI(title="PhyloLoom AI", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_methods=["*"], allow_headers=["*"])
 def _make_provider():
@@ -54,6 +58,15 @@ class HypothesisIn(BaseModel):
 class EvolutionIn(BaseModel):
     fasta_text: str
     gap_flag_threshold: float = 0.5
+class StructureContextIn(BaseModel):
+    pdb_text: str
+    chain_id: str
+    residue_number: int
+    insertion_code: str = ""
+    cutoff: float = 5.0
+class ReportIn(BaseModel):
+    title: str = "PhyloLoom Investigation Report"
+    sections: dict
 
 @app.get("/health")
 def health():
@@ -194,3 +207,62 @@ def investigation_demo_evolution():
     result = analyze_evolution(DEMO_EVOLUTION_FASTA, demo=True)
     result["demo_label"] = "DEMO alignment - labelled demonstration data, not a user analysis"
     return result
+
+@app.get("/api/investigation/reference/uniprot/{accession}")
+def investigation_uniprot(accession: str):
+    try:
+        record = fetch_uniprot_record(accession)
+    except SourceUnavailable as e:
+        return {
+            "status": "unavailable",
+            "accession": accession,
+            "reason": str(e),
+            "classification": "CURATED_ASSERTION",
+            "note": "External record unavailable. Nothing was invented or substituted.",
+        }
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+    return {
+        "status": "available",
+        "accession": record["accession"],
+        "id": record["id"],
+        "length": record["length"],
+        "sequence_sha256": canonical_sha256(record["sequence"]),
+        "source": record["source"],
+        "source_url": record["source_url"],
+        "classification": "CURATED_ASSERTION",
+        "retrieved_at": utc_now_iso(),
+        "note": "Sequence itself is not echoed by this endpoint; only its checksum and metadata. Retrieval is live and may vary by database release.",
+    }
+
+
+@app.post("/api/investigation/structure-context")
+def investigation_structure_context(body: StructureContextIn):
+    try:
+        return analyze_structure_context(
+            body.pdb_text,
+            body.chain_id,
+            body.residue_number,
+            body.insertion_code,
+            body.cutoff,
+        )
+    except StructureMappingError as e:
+        raise HTTPException(422, str(e))
+@app.post("/api/investigation/report")
+def investigation_report(body: ReportIn):
+    try:
+        return build_report_bundle(body.title, body.sections)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+
+@app.post("/api/investigation/report/html", response_class=HTMLResponse)
+def investigation_report_html(body: ReportIn):
+    try:
+        bundle = build_report_bundle(body.title, body.sections)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    return render_html_report(bundle)
+
+    

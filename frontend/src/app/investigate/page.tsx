@@ -7,6 +7,9 @@ import HypothesisBoard, { HypothesisCard } from "@/components/investigation/Hypo
 import EntropyTrack, { ColumnStat } from "@/components/investigation/EntropyTrack";
 import ConservationHeatmap from "@/components/investigation/ConservationHeatmap";
 import PhyloTree from "@/components/PhyloTree";
+import StructureContextPanel from "@/components/investigation/StructureContextPanel";
+import ReferenceLookup from "@/components/investigation/ReferenceLookup";
+import ReportExport from "@/components/investigation/ReportExport";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 type DemoResponse = {
@@ -188,6 +191,26 @@ export default function InvestigatePage() {
     }
     setEvoLoading(false);
   }
+  const reportSections: Record<string, unknown> = {
+    hbb_demo: data ?? { status: "unavailable", reason: "HBB demo not loaded" },
+    demo_hypotheses: demoHypotheses.length
+      ? demoHypotheses
+      : { status: "unavailable", reason: "No demo hypothesis cards loaded" },
+    live_mutation: liveResult ?? { status: "unavailable", reason: "Live mutation investigation not run" },
+    live_hypotheses: liveHypotheses.length
+      ? liveHypotheses
+      : { status: "unavailable", reason: "No live hypothesis cards generated" },
+    evolution: evoResult ?? { status: "unavailable", reason: "Evolutionary analysis not run" },
+    unavailable_analyses: {
+      esm_model_score: "unavailable — gated spike not completed",
+      ddg: "unavailable — no licensed and benchmarked stability tool integrated",
+      dssp_secondary_structure: "unavailable — mkdssp not verified",
+      solvent_accessibility: "unavailable — requires DSSP",
+      fasttree: "unavailable — not verified in deployment image",
+      positive_selection: "unavailable — never inferred from variability alone",
+      clinical_interpretation: "unavailable — PhyloLoom does not classify variants clinically",
+    },
+  };
 
   return (
     <main className="min-h-screen bg-white text-slate-900 font-sans">
@@ -487,6 +510,47 @@ export default function InvestigatePage() {
               unavailable rather than computed from an unaligned input.
             </p>
           )}
+        </section>
+        <section className="border-2 border-blue-300 rounded-xl p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-semibold text-lg">UniProt Reference Record</h2>
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+              CURATED_ASSERTION
+            </span>
+            <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">
+              External source
+            </span>
+          </div>
+
+          <p className="text-sm text-slate-500 mt-1 mb-3">
+            Live reference metadata for an explicitly selected UniProt accession.
+            This record provides provenance and sequence identity context; it does not
+            by itself establish a variant effect.
+          </p>
+
+          <ReferenceLookup />
+        </section>
+        <section className="border-2 border-violet-300 rounded-xl p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-semibold text-lg">Structure Context</h2>
+            <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">COMPUTED</span>
+            <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">Explicit chain mapping required</span>
+          </div>
+          <p className="text-sm text-slate-500 mt-1 mb-3">
+            Paste PDB text, choose the exact chain and residue number as written in the file, and compute
+            heavy-atom contacts. For interactive 3D viewing with experimental vs predicted labelling, use the
+            Protein Explorer on the home page — this panel computes the contact evidence behind it.
+          </p>
+          <StructureContextPanel />
+        </section>
+        <section className="border-2 border-teal-300 rounded-xl p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-semibold text-lg">Reproducible Investigation Export</h2>
+            <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">M6</span>
+          </div>
+          <div className="mt-3">
+            <ReportExport sections={reportSections} />
+          </div>
         </section>
       </div>
     </main>
